@@ -1,0 +1,71 @@
+# =========================================================
+# Leg_Hero — 忽略规则
+# 目标：只保留源码 / 工程配置 / 编译必需的第三方库
+# =========================================================
+
+# ---------- CMake / 构建产物 ----------
+cmake-build-*/
+build/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+*.o
+*.obj
+*.d
+*.su
+
+# ---------- 固件编译输出 ----------
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+*.axf
+*.srec
+*.lst
+
+# ---------- IDE / 编辑器本地状态 ----------
+# 说明：.project / .cproject / .mxproject / .ioc 是 STM32CubeIDE 工程文件，必须保留
+.idea/
+.vs/
+.settings/
+.vscode/ipch/
+*.user
+*.suo
+*.userprefs
+*.launch
+*.openocd
+
+# ---------- 压缩包 ----------
+# 仓库内已有解压后的同名目录，不再重复存放
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# ---------- 操作系统 / 临时文件 ----------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+*.log
+
+# ---------- 注意 ----------
+# Middlewares/ST/ARM/DSP/Lib/*.a 是 CMake 链接所必需的静态库，
+# 因此这里刻意不忽略 *.a，请勿添加该规则。
