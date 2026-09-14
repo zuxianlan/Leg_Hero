@@ -775,16 +775,18 @@ static void gimbal_motor_absolute_angle_control(gimbal_motor_t *gimbal_motor)
     {
         if (gimbal_motor->gimbal_motor_mode == GIMBAL_MOTOR_AUTO_CONTROL)
         {
-            gimbal_motor->dm_normal_motor.Feedforward_Omega=gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_omega;
+            gimbal_motor->dm_normal_motor.Feedforward_Omega = gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_omega;
+            gimbal_motor->dm_normal_motor.Feedforward_Accel = gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
         }
         else
         {
             gimbal_motor->dm_normal_motor.Feedforward_Omega=0;
+            gimbal_motor->dm_normal_motor.Feedforward_Accel=0;
         }
 
         //LQR计算
         gimbal_motor->dm_normal_motor.Control_Torque = YAW_LQR_K1 * (gimbal_motor->dm_normal_motor.Target_Angle - gimbal_control.gimbal_INS_point->Yaw)
-                                        + YAW_LQR_K2 * ( gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_omega - gimbal_control.gimbal_INS_point->Gyro[2]) + 0.008*gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
+                                        + YAW_LQR_K2 * ( gimbal_motor->dm_normal_motor.Feedforward_Omega - gimbal_control.gimbal_INS_point->Gyro[2]) + 0.008*gimbal_motor->dm_normal_motor.Feedforward_Accel;
 
         gimbal_motor->dm_normal_motor.Control_Torque = Math_Constrain(&gimbal_motor->dm_normal_motor.Control_Torque, -8.0f, 8.0f);
 
@@ -797,11 +799,13 @@ static void gimbal_motor_absolute_angle_control(gimbal_motor_t *gimbal_motor)
     {
         if (gimbal_motor->gimbal_motor_mode == GIMBAL_MOTOR_AUTO_CONTROL)
         {
-            gimbal_motor->dm_normal_motor.Feedforward_Omega=gimbal_control.gimbal_vision_point->gimbal_feed_forward_pitch_omega;
+            gimbal_motor->dm_normal_motor.Feedforward_Omega = gimbal_control.gimbal_vision_point->gimbal_feed_forward_pitch_omega;
+            gimbal_motor->dm_normal_motor.Feedforward_Accel = gimbal_control.gimbal_vision_point->gimbal_feed_forward_pitch_accel;
         }
         else
         {
             gimbal_motor->dm_normal_motor.Feedforward_Omega=0;
+            gimbal_motor->dm_normal_motor.Feedforward_Accel=0;
         }
 
         //重力补偿前馈力矩计算

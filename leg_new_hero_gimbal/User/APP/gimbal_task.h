@@ -153,8 +153,31 @@ typedef struct {
 
 //Pitch轴4340电机PID（超抗参数）
 //角度环PID
-#define Pitch_4340_Angle_PID_KP                        28.4f//26
-#define Pitch_4340_Angle_PID_KI                        4.0f
+// #define Pitch_4340_Angle_PID_KP                        28.4f//26
+// #define Pitch_4340_Angle_PID_KI                        4.0f
+// #define Pitch_4340_Angle_PID_KD                        0.0f
+// #define Pitch_4340_Angle_PID_KF                        0.0f
+// #define Pitch_4340_Angle_PID_MAX_IOUT             	   1.3
+// #define Pitch_4340_Angle_PID_MAX_OUT               	(1 * PI)
+// #define Pitch_4340_Angle_PID_DEAD_ZONE             	 0.0f
+// #define Pitch_4340_Angle_I_Variable_Speed_A            0.5f
+// #define Pitch_4340_Angle_I_Variable_Speed_B            0.0001f
+// #define Pitch_4340_Angle_I_Separate_Threshold          0.0f
+// //速度环PID
+// #define Pitch_4340_Speed_PID_KP                      1.15f//1.0
+// #define Pitch_4340_Speed_PID_KI                      0.0f
+// #define Pitch_4340_Speed_PID_KD                      0.0f
+// #define Pitch_4340_Speed_PID_KF                      0.0f
+// #define Pitch_4340_Speed_PID_MAX_IOUT                0.0f
+// #define Pitch_4340_Speed_PID_MAX_OUT              6.0f//8
+// #define Pitch_4340_Speed_PID_DEAD_ZONE             0.0f
+// #define Pitch_4340_Speed_I_Variable_Speed_A          0.0f
+// #define Pitch_4340_Speed_I_Variable_Speed_B          0.0f
+// #define Pitch_4340_Speed_I_Separate_Threshold        0.0f
+
+
+#define Pitch_4340_Angle_PID_KP                        24//28.4f
+#define Pitch_4340_Angle_PID_KI                        3.5f
 #define Pitch_4340_Angle_PID_KD                        0.0f
 #define Pitch_4340_Angle_PID_KF                        0.0f
 #define Pitch_4340_Angle_PID_MAX_IOUT             	   1.3
@@ -174,31 +197,6 @@ typedef struct {
 #define Pitch_4340_Speed_I_Variable_Speed_A          0.0f
 #define Pitch_4340_Speed_I_Variable_Speed_B          0.0f
 #define Pitch_4340_Speed_I_Separate_Threshold        0.0f
-
-
-// //Pitch轴4340电机PID
-// //角度环PID
-// #define Pitch_4340_Angle_PID_KP                        28.7f//26
-// #define Pitch_4340_Angle_PID_KI                        1.9f
-// #define Pitch_4340_Angle_PID_KD                        0.0f
-// #define Pitch_4340_Angle_PID_KF                        0.0f
-// #define Pitch_4340_Angle_PID_MAX_IOUT             	   1.5
-// #define Pitch_4340_Angle_PID_MAX_OUT               	(1 * PI)
-// #define Pitch_4340_Angle_PID_DEAD_ZONE             	 0.0f
-// #define Pitch_4340_Angle_I_Variable_Speed_A            0.3f
-// #define Pitch_4340_Angle_I_Variable_Speed_B            0.0001f
-// #define Pitch_4340_Angle_I_Separate_Threshold          0.0f
-// //速度环PID
-// #define Pitch_4340_Speed_PID_KP                      1.0f//1.35
-// #define Pitch_4340_Speed_PID_KI                      0.0f
-// #define Pitch_4340_Speed_PID_KD                      0.0f
-// #define Pitch_4340_Speed_PID_KF                      0.0f
-// #define Pitch_4340_Speed_PID_MAX_IOUT                0.0f
-// #define Pitch_4340_Speed_PID_MAX_OUT              5.0f//8
-// #define Pitch_4340_Speed_PID_DEAD_ZONE             0.0f
-// #define Pitch_4340_Speed_I_Variable_Speed_A          0.0f
-// #define Pitch_4340_Speed_I_Variable_Speed_B          0.0f
-// #define Pitch_4340_Speed_I_Separate_Threshold        0.0f
 
 
 

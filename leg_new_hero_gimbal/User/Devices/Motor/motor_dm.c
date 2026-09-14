@@ -378,7 +378,7 @@ void Pitch_Motor_DM_Normal_TIM_1ms_Calculate_PeriodElapsedCallback(Motor_DM_Norm
     motor->Omega_PID.Now = -motor->INS_point->Gyro[1];
     PID_TIM_Adjust_PeriodElapsedCallback(&motor->Omega_PID);
 
-    motor->Control_Torque = motor->Omega_PID.Out * motor->polarity + motor->Feedforward_Torque;
+    motor->Control_Torque = motor->Omega_PID.Out * motor->polarity + motor->Feedforward_Torque + motor->Feedforward_Accel * 0.005;
 }
 
 /**

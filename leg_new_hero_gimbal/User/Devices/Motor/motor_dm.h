@@ -233,6 +233,7 @@ typedef struct {
     float Control_Torque;
     float Control_Current;
     float Feedforward_Omega;    // 前馈的速度, rad/s
+    float Feedforward_Accel;    // 前馈的速度, rad/s2
     float Feedforward_Torque;  // 前馈的扭矩, Nm
 
     float K_P;
