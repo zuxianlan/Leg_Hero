@@ -785,9 +785,6 @@ static void gimbal_motor_absolute_angle_control(gimbal_motor_t *gimbal_motor)
         //LQR¼ÆËã
         gimbal_motor->dm_normal_motor.Control_Torque = YAW_LQR_K1 * (gimbal_motor->dm_normal_motor.Target_Angle - gimbal_control.gimbal_INS_point->Yaw)
                                         + YAW_LQR_K2 * ( gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_omega - gimbal_control.gimbal_INS_point->Gyro[2]) + 0.008*gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
-        //LQR¼ÆËã
-        // gimbal_motor->dm_normal_motor.Control_Torque = YAW_LQR_K1 * (gimbal_motor->dm_normal_motor.Target_Angle - gimbal_control.gimbal_INS_point->Yaw)
-        //                                 + YAW_LQR_K2 * (-gimbal_control.gimbal_INS_point->Gyro[2]) + 0.008*gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
 
         gimbal_motor->dm_normal_motor.Control_Torque = Math_Constrain(&gimbal_motor->dm_normal_motor.Control_Torque, -8.0f, 8.0f);
 
