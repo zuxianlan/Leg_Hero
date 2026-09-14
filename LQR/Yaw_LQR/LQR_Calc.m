@@ -2,7 +2,7 @@ function u_torque = LQR_Calc(theta_ref, theta_now, omega_now)
 %#codegen
 % 自动生成LQR增益，无需手动修改
 K1 = 9.4868;
-K2 = 0.5796;
+K2 = 0.7728;
 u_max = 1.0000;
 u_min = -1.0000;
 
