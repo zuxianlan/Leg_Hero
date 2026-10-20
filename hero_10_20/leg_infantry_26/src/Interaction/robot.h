@@ -164,13 +164,10 @@ private:
 class Robot
 {
 public:
-    // ��λ��ͨ��
     mc_02_serial mc02_SerialPort;
 
-    // TCP���ݼ��?
     Class_Vofa_TCP Vofa_TCP;
 
-    // IMU����
     class_INS INS;
 
     Remote_Control RC{};

@@ -223,24 +223,13 @@ void mc02_send_data()
         robot.mc02_SerialPort.usb.send(robot.mc02_SerialPort.Tx_buffer, sizeof(mc_02_Tx_data) + 2);
     }
 
-    // int bytes = robot.mc02_SerialPort.serial_port_.send_data(robot.mc02_SerialPort.Tx_buffer, sizeof(mc_02_Tx_data));
-
-    // if (bytes < 0)
-    // {
-    //     std::cout << "Serial port: Field to send data" << std::endl;
-    // }
 }
 
 void TIM_1ms_PeriodElapsedCallback()
 {
-    //  �������� Rx_Data ��ȡ���� USB �ص�����
     std::lock_guard<std::mutex> lock(robot.mc02_SerialPort.rx_mutex);
 
-    robot.INS.INS_Update();
-    robot.INS.pitch = -robot.mc02_SerialPort.Rx_Data.pitch;
-    robot.INS.yaw = robot.mc02_SerialPort.Rx_Data.yaw;
-    robot.INS.roll = -robot.mc02_SerialPort.Rx_Data.roll;
-    // robot.Fusion_AHRS_update();
+    robot.INS.INS_Update(robot.mc02_SerialPort.Rx_Data);
 
     robot.Chassis.Self_Observe();
 }

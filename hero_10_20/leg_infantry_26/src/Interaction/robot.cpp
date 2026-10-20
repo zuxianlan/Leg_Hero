@@ -354,10 +354,9 @@ void Robot::Init()
 
     GamePad.Open();
 
-    INS.gyro = mc02_SerialPort.Rx_Data.gyro;
-    INS.accel = mc02_SerialPort.Rx_Data.accel;
-    INS.MotionAccel_b = mc02_SerialPort.Rx_Data.motionAccel_b;
-    INS.INS_Init();
+    // INS.gyro = mc02_SerialPort.Rx_Data.gyro;
+    // INS.accel = mc02_SerialPort.Rx_Data.accel;
+    // INS.MotionAccel_b = mc02_SerialPort.Rx_Data.motionAccel_b;
 
     // Offset.initialise(100);
     // Ahrs.enable_gradient_descent(true);

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -iv \"^\\\\s*//\")",
+      "Bash(awk 'NR>=200 && NR<=340 && $0 !~ /^[[:space:]]*\\\\/\\\\// && $0 !~ /^[[:space:]]*\\\\*/' User/APP/INS_Task.c)",
+      "Bash(awk 'NR>=300 && NR<=560' User/APP/INS_Task.c)",
+      "Read(//d/electronic_control_project/robomaster/Leg_Hero/**)"
+    ]
+  }
+}
