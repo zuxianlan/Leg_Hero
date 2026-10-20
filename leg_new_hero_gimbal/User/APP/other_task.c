@@ -347,12 +347,13 @@ void UART_Send_feedback_update(SEND_Message *sendMessage)
     // sendMessage->v4= shoot_control.trigger_mode;
     // sendMessage->v5= fusi_up_to_down;
     // sendMessage->v6 = class_referee.Referee_Rx_Data.Robot_Status.shooter_heat_limit;
-    sendMessage->v0= gimbal_control.gimbal_INS_point->Yaw;
-    sendMessage->v1 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Target_Angle;
-    sendMessage->v2 = gimbal_control.gimbal_INS_point->Gyro[2];
-    sendMessage->v3 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Control_Torque;
-    sendMessage->v4 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Rx_Data.Now_Torque;
-    sendMessage->v5 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Rx_Data.Now_Omega;
-    sendMessage->v6 = gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
-
+    // sendMessage->v0= gimbal_control.gimbal_INS_point->Yaw;
+    // sendMessage->v1 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Target_Angle;
+    // sendMessage->v2 = gimbal_control.gimbal_INS_point->Gyro[2];
+    // sendMessage->v3 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Control_Torque;
+    // sendMessage->v4 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Rx_Data.Now_Torque;
+    // sendMessage->v5 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Rx_Data.Now_Omega;
+    // sendMessage->v6 = gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
+    sendMessage->v0 = shoot_control.count;
+    sendMessage->v1 = SP_vision.Rx_data.mode;
 }

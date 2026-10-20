@@ -233,6 +233,8 @@ typedef struct
     //发弹后强制延迟一秒的时间
     TickType_t fire_force_delay_start_time;
 
+    uint32_t count;
+
 } shoot_control_t;
 //------------------------------------------------------------------------------
 

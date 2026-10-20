@@ -10,6 +10,7 @@
 #include "dvc_dr16.h"
 #include "dvc_vt13_rc.h"
 #include "dvc_fusi_rc.h"
+#include <stdint.h>
 
 //函数前置声明
 static void RC_Control_Init(RC_Control_t *rc_control_init);
@@ -853,6 +854,7 @@ void Get_vt13_shoot_flag(void)
 
 void Get_fusi_shoot_flag(void)
 {
+    shoot_control.count++;
     shoot_control.heat_allow_fire_flag=1;
     // 发射模式时将shoot_flag置零, 允许发射下颗弹丸(为了单发)
     if (RC_Control.shoot_control_status==Remote_Control)
@@ -865,13 +867,15 @@ void Get_fusi_shoot_flag(void)
 
     if (gimbal_behaviour == GIMBAL_AUTO_ATTACK)
     {
-        if (shoot_control.shoot_flag == 0                                                       // 条件1:单发限制允许发射下一发
+        if ((shoot_control.shoot_flag == 0                                                       // 条件1:单发限制允许发射下一发
             && (class_fusi_rc.Processed_Data.Right_Switch_Status==Fusi_Two_Stage_Switch_Status_UP_TRIG_DOWN || class_fusi_rc.Processed_Data.Right_Switch_Status==Fusi_Two_Stage_Switch_Status_DOWN_TRIG_UP) // 条件2:手动触发发弹标志
             && shoot_control.shoot_vision_control->shoot_command == SHOOT_ATTACK
-            && shoot_control.heat_allow_fire_flag==1
+            && shoot_control.heat_allow_fire_flag==1)
+            || (shoot_control.shoot_vision_control->shoot_command == SHOOT_ATTACK && shoot_control.heat_allow_fire_flag==1 && shoot_control.count > 5000)
           )
         {
             shoot_control.shoot_flag = 1;
+            shoot_control.count = 0;
         }
     }
     else
