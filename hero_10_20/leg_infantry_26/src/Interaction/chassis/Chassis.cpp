@@ -237,7 +237,6 @@ void class_Chassis::Follow_Gimbal_Control()
 
     /******************* left_leg *******************/
 
-    // ���㲻ͬ�ȳ��µ�LQR�������K
     float LQR_Tmp[14] = {0.0f};
     lqr_k_calc(left_leg.Get_L0(), LQR_Tmp);
 
@@ -262,7 +261,6 @@ void class_Chassis::Follow_Gimbal_Control()
     {
         Target_Theta = 0.0;
         M = 180.0;
-        // ����������
         F_mc = Velocity_filter * INS->gyro[2] * 28.0f;
     }
     

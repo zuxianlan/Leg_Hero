@@ -64,22 +64,6 @@ void lqr_k_calc(float L0, float K[12])
           5.9286992079906558;
 }
 
-
-void Fitting_K_Calc(float (*fitting_k)[10],float (*p)[6],float L_l,float L_r)
-{
-	static unsigned short int i = 0;
-	static unsigned short int j = 0;
-	
-	for(i=0;i<=3;i++)
-	{
-		for(j=0;j<=9;j++)
-		{
-			fitting_k[i][j] = p[i*10+j][0] + p[i*10+j][1]*L_l + p[i*10+j][2]*L_r + p[i*10+j][3]*(L_l*L_l) + p[i*10+j][4]*L_l*L_r + p[i*10+j][5]*(L_r*L_r);
-		}
-	}
-}
-
-
 /*
  * File trailer for lqr_k_calc.c
  *

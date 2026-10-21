@@ -204,25 +204,12 @@ public:
 
     void Self_Rescue();
 
-    inline float Get_Target_Omega() const;
-
-    inline float Get_Target_Velocity() const;
-
-    inline float Get_Target_Velocity_Y() const;
-
-    inline float Get_Target_X() const;
-
-    inline float Get_Target_height() const;
-
-    inline float Get_jump_flag() const;
-
-    // fusion::Vector read_gyro() const;
-
-    // fusion::Vector read_accelerometer() const;
-
-    void Fusion_AHRS_update();
-
-
+    inline float Get_Target_Omega() const       { return Target_Omega; }
+    inline float Get_Target_Velocity() const    { return Target_Velocity; }
+    inline float Get_Target_Velocity_Y() const  { return Target_Velocity_Y; }
+    inline float Get_Target_X() const           { return Target_X; }
+    inline float Get_Target_height() const      { return Target_height; }
+    inline float Get_jump_flag() const          { return jump_flag; }
 
 private:
 
@@ -254,75 +241,6 @@ private:
     bool init_pos = false;
     bool yaw_rotate_active = false;       
 
-
-    float Math_Modulus_Normalization(float x, float modulus)
-    {
-        float tmp;
-
-        tmp = fmodf(x + modulus / 2.0f, modulus);
-
-        if (tmp < 0.0f) 
-        {
-            tmp += modulus;
-        }
-
-        return (tmp - modulus / 2.0f);
-    }
-
-    float Get_target_angle(float x, float y, float Now_angle, float *vel)
-    {
-        static float target_angle;
-        target_angle = atan2f(y, x);
-
-        float tmp_delta_angle = Math_Modulus_Normalization(target_angle - Now_angle, 2.0f * M_PI);
-
-        // ����ת���Ƕȷ�Χ�����Ƿ���Ҫ�ͽ�תλ
-        if (-M_PI / 2.0f <= tmp_delta_angle && tmp_delta_angle <= M_PI / 2.0f)
-        {
-            // ��PI / 2֮�����跴��ͽ�תλ
-            target_angle = tmp_delta_angle + Now_angle;
-        }
-        else
-        {
-            // ��Ҫ��ת��Ȧ���
-            target_angle = Math_Modulus_Normalization(tmp_delta_angle + M_PI, 2.0f * M_PI) + Now_angle;
-            *vel *= -1.0f;
-        }
-
-        return target_angle;
-    }
 };
-
-inline float Robot::Get_Target_Omega() const
-{
-    return Target_Omega;
-}
-
-inline float Robot::Get_Target_Velocity() const
-{
-    return Target_Velocity;
-}
-
-inline float Robot::Get_Target_Velocity_Y() const
-{
-    return Target_Velocity_Y;
-}
-
-inline float Robot::Get_Target_X() const
-{
-    return Target_X;
-}
-
-inline float Robot::Get_Target_height() const
-{
-    return Target_height;
-}
-
-inline float Robot::Get_jump_flag() const
-{
-    return jump_flag;
-}
-
-
 
 #endif //WHEEL_LEG_SYS_ROBOT_H

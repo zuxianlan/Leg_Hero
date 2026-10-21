@@ -22,7 +22,7 @@
 #define spring_forceL 0
 #define spring_forceR 0
 
-#define N 15
+#define N 15    //预测步数
 #define WHEEL_BASE          0.25f    
 #define SLIP_DVW_THRESHOLD  0.06f    
 #define SLIP_DVB_THRESHOLD  1.20f    
@@ -113,100 +113,55 @@ public:
     float LESO_dhat[4];
 
     void Init();
-
     void feedback_update();
-
     void Zero_Force_Control();
-
     void Follow_Gimbal_Control();
-
     void Check_in_Control();
-
     void Control_leg();
-
     void Control_leg_left(float target);
-
     void Control_leg_right(float target);
-
     void UP_Staris_Control_leg();
-
     void Self_Observe();
-
     void Ground_Detection();
-
     void Slip_Detection_And_Suppression();
-
     void MPC_Body_Calc();
-
     void LQR_Calc();
 
-    inline void Set_Target_X(float __Target_X);
-
-    inline void Set_Target_Velocity(float __Target_Velocity);
-
-    inline void Set_Target_height(float __Target_height);
-
-    inline void Set_Target_dheight(float __Target_dheight);
-
-    inline void Set_Target_left_f0(float __Target_left_f0);
-
-    inline void Set_Target_right_f0(float __Target_right_f0);
-
-    inline void Set_Target_Yaw(float __Target_Yaw);
-
-    inline void Set_Yaw_Angle(float __Yaw_Angle);
-
-    inline void Set_Target_Omega(float __Target_Omega);
-
-    inline void Set_Target_Roll(float __Target_Roll);
-
-    inline void Set_Target_Theta(float __Target_Theta);
-
-    inline void Set_Target_Pitch(float __Target_Pitch);
-
-    inline void Set_Spin_Mode(bool __spin_mode);
-
-    inline void Set_last_Target_leg(float __last_Target_leg);
-
-    inline void Set_Velocity_filter(float __Velocity_filter);
-
-    inline void Set_T_L(float __T_L);
-
-    inline void Set_T_R(float __T_R);
-
-    inline void Set_above_flag_l(bool __above_flag_l);
-
-    inline void Set_above_flag_r(bool __above_flag_r);
-
-    inline void Set_Jump_force(float __Jump_force);
-
-    inline void Set_FSM_mod(Enum_chassis_fsm_mode __mod);
-
-    inline void Set_UP_FSM_mod(Enum_up_staris_fsm_mode __mod);
-
-    inline float Get_Velocity_filter();
-
-    inline float Get_X_filter();
-
-    inline float Get_T_L();
-
-    inline float Get_Tp_L();
-
-    inline float Get_T_R();
-
-    inline float Get_Tp_R();
-
-    inline bool Get_above_flag_l();
-
-    inline bool Get_above_flag_r();
-
-    inline float Get_Heigh();
-
-    inline float Get_average_speed();
-    inline bool  Get_slip_active();
-
-    inline float Get_v_filter();       // kf.x_hat(0) 
-    inline float Get_a_filter();       // kf.x_hat(1) 
+    inline void Set_Target_X(float __Target_X)                         { Target_X = __Target_X; }
+    inline void Set_Target_Velocity(float __Target_Velocity)           { Target_Velocity = __Target_Velocity; }
+    inline void Set_Target_height(float __Target_height)               { Target_height = __Target_height; }
+    inline void Set_Target_dheight(float __Target_dheight)             { Target_dheight = __Target_dheight; }
+    inline void Set_Target_left_f0(float __Target_left_f0)             { Target_left_f0 = __Target_left_f0; }
+    inline void Set_Target_right_f0(float __Target_right_f0)           { Target_right_f0 = __Target_right_f0; }
+    inline void Set_Target_Yaw(float __Target_Yaw)                     { Target_Yaw = __Target_Yaw; }
+    inline void Set_Yaw_Angle(float __Yaw_Angle)                       { Yaw_Angle = __Yaw_Angle; }
+    inline void Set_Target_Omega(float __Target_Omega)                 { Target_Omega = __Target_Omega; }
+    inline void Set_Target_Roll(float __Target_Roll)                   { Target_Roll = __Target_Roll; }
+    inline void Set_Target_Theta(float __Target_Theta)                 { Target_Theta = __Target_Theta; }
+    inline void Set_Target_Pitch(float __Target_Pitch)                 { Target_Pitch = __Target_Pitch; }
+    inline void Set_Spin_Mode(bool __spin_mode)                        { spin_mode = __spin_mode; }
+    inline void Set_last_Target_leg(float __last_Target_leg)           { last_Target_leg = __last_Target_leg; }
+    inline void Set_Velocity_filter(float __Velocity_filter)           { Velocity_filter = __Velocity_filter; }
+    inline void Set_T_L(float __T_L)                                   { T_L = __T_L; }
+    inline void Set_T_R(float __T_R)                                   { T_R = __T_R; }
+    inline void Set_above_flag_l(bool __above_flag_l)                  { above_flag_l = __above_flag_l; }
+    inline void Set_above_flag_r(bool __above_flag_r)                  { above_flag_r = __above_flag_r; }
+    inline void Set_Jump_force(float __Jump_force)                     { Jump_force = __Jump_force; }
+    inline void Set_FSM_mod(Enum_chassis_fsm_mode __mod)               { chassis_fsm_mode = __mod; }
+    inline void Set_UP_FSM_mod(Enum_up_staris_fsm_mode __mod)          { chassis_up_fsm_mode = __mod; }
+    inline float Get_Velocity_filter()                                 { return Velocity_filter; }
+    inline float Get_X_filter()                                        { return X_filter; }
+    inline float Get_T_L()                                             { return T_L; }
+    inline float Get_Tp_L()                                            { return Tp_L; }
+    inline float Get_T_R()                                             { return T_R; }
+    inline float Get_Tp_R()                                            { return Tp_R; }
+    inline bool Get_above_flag_l()                                     { return above_flag_l; }
+    inline bool Get_above_flag_r()                                     { return above_flag_r; }
+    inline float Get_Heigh()                                           { return Now_height; }
+    inline float Get_average_speed()                                   { return average_speed; }
+    inline bool  Get_slip_active()                                     { return slip_active; }
+    inline float Get_v_filter()                                        { return kf.x_hat(0); }
+    inline float Get_a_filter()                                        { return kf.x_hat(1); } 
 
     float ll,rr = 0;
     float lqr_term[10] = {};
@@ -332,143 +287,6 @@ private:
     bool slip_active = false;                 
     bool last_slip_flag[2] = {false, false};   
 };
-
-inline void class_Chassis::Set_Target_X(float __Target_X)
-{
-    Target_X = __Target_X;
-}
-
-inline void class_Chassis::Set_Target_Velocity(float __Target_Velocity)
-{
-    Target_Velocity = __Target_Velocity;
-}
-
-inline void class_Chassis::Set_Target_height(float __Target_height)
-{
-    Target_height = __Target_height;
-}
-
-inline void class_Chassis::Set_Target_dheight(float __Target_dheight)
-{
-    Target_dheight = __Target_dheight;
-}
-
-inline void class_Chassis::Set_Target_left_f0(float __Target_left_f0)
-{
-    Target_left_f0 = __Target_left_f0;
-}
-
-inline void class_Chassis::Set_Target_right_f0(float __Target_right_f0)
-{
-    Target_right_f0 = __Target_right_f0;
-}
-
-inline void class_Chassis::Set_Target_Yaw(float __Target_Yaw)
-{
-    Target_Yaw = __Target_Yaw;
-}
-
-inline void class_Chassis::Set_Yaw_Angle(float __Yaw_Angle)
-{
-    Yaw_Angle = __Yaw_Angle;
-}
-
-inline void class_Chassis::Set_Target_Omega(float __Target_Omega)
-{
-    Target_Omega = __Target_Omega;
-}
-
-inline void class_Chassis::Set_Target_Roll(float __Target_Roll)
-{
-    Target_Roll = __Target_Roll;
-}
-
-inline void class_Chassis::Set_Target_Theta(float __Target_Theta)
-{
-    Target_Theta = __Target_Theta;
-}
-
-inline void class_Chassis::Set_Target_Pitch(float __Target_Pitch)
-{
-    Target_Pitch = __Target_Pitch;
-}
-
-inline void class_Chassis::Set_Spin_Mode(bool __spin_mode)
-{
-    spin_mode = __spin_mode;
-}
-
-inline void class_Chassis::Set_last_Target_leg(float __last_Target_leg)
-{
-    last_Target_leg = __last_Target_leg;
-}
-
-inline void class_Chassis::Set_Velocity_filter(float __Velocity_filter)
-{
-    Velocity_filter = __Velocity_filter;
-}
-
-inline void class_Chassis::Set_T_L(float __T_L)
-{
-    T_L = __T_L;
-}
-
-inline void class_Chassis::Set_T_R(float __T_R)
-{
-    T_R = __T_R;
-}
-
-inline void class_Chassis::Set_above_flag_l(bool __above_flag_l)
-{
-    above_flag_l = __above_flag_l;
-}
-
-inline void class_Chassis::Set_above_flag_r(bool __above_flag_r)
-{
-    above_flag_r = __above_flag_r;
-}
-
-inline void class_Chassis::Set_Jump_force(float __Jump_force)
-{
-    Jump_force = __Jump_force;
-}
-
-
-inline void class_Chassis::Set_FSM_mod(Enum_chassis_fsm_mode __mod)
-{
-    chassis_fsm_mode = __mod;
-}
-
-inline void class_Chassis::Set_UP_FSM_mod(Enum_up_staris_fsm_mode __mod)
-{
-    chassis_up_fsm_mode = __mod;
-}
-
-
-inline float class_Chassis::Get_Velocity_filter()
-{
-    return Velocity_filter;
-}
-
-inline float class_Chassis::Get_average_speed() { return average_speed; }
-inline bool  class_Chassis::Get_slip_active()   { return slip_active; }
-inline float class_Chassis::Get_X_filter()  {   return X_filter;    }
-inline float class_Chassis::Get_T_L()   {return T_L;}
-inline float class_Chassis::Get_Tp_L()  {return Tp_L;}
-
-inline float class_Chassis::Get_T_R()   {return T_R;}
-
-inline float class_Chassis::Get_Tp_R()  {return Tp_R;}
-
-inline bool class_Chassis::Get_above_flag_l()   {return above_flag_l;}
-
-inline bool class_Chassis::Get_above_flag_r()   {return above_flag_r;}
-
-inline float class_Chassis::Get_Heigh() {return Now_height;}
-
-inline float class_Chassis::Get_v_filter()  {return kf.x_hat(0);}
-
-inline float class_Chassis::Get_a_filter()  {return kf.x_hat(1);}
 
 float Float_Math_Constrain(float *x, float Min, float Max);
 

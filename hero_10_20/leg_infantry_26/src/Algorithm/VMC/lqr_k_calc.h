@@ -19,7 +19,6 @@ extern "C" {
 /* Function Declarations */
 extern void lqr_k_calc(float L0, float K[12]);
 
-void Fitting_K_Calc(float (*fitting_k)[10],float (*p)[6],float L_l,float L_r);
 
 #ifdef __cplusplus
 }

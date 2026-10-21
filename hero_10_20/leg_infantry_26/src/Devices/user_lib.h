@@ -10,4 +10,6 @@ float Float_Math_Constrain(float *x, float Min, float Max);
 float power_calculate(float K_0, float K_1, float K_2, float A, float Current, float Omega);
 float Float_Math_Abs(float x);
 void normalizeAngle(float *angle);
+float Math_Modulus_Normalization(float x, float modulus);
+float Get_target_angle(float x, float y, float Now_angle, float *vel);
 #endif

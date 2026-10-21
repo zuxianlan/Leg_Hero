@@ -198,7 +198,7 @@ inline float class_vmc_leg::Get_Tp()
 {
   return Tp;
 }
-
+void Fitting_K_Calc(float (*fitting_k)[10],float (*p)[6],float L_l,float L_r);
 
 
 #endif //VMC_LQR_CALC_H
