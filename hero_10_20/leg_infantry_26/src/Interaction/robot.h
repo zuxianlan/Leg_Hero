@@ -57,7 +57,7 @@
 #define DR16_Rocker_Dead_Zone 0.1f
 #define RC_to_Chassis_Roll_Gain 0.001f
 #define RC_to_Chassis_Spin_Pitch_Gain 0.1f
-#define Spin_Pitch_Angle_Offset 2.5f   // pitch�?荡的相位偏移(rad)，调此值校�?"�?"的方�?
+#define Spin_Pitch_Angle_Offset 2.5f   
 
 #define MAX_Velocity 2.0f
 #define MAX_Velocity_Y 2.0f
