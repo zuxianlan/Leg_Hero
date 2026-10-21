@@ -25,9 +25,16 @@
 using namespace Eigen;
 using namespace qpOASES;
 
+/**
+ * @brief MPC_Controller æ„é€ å‡½æ•°
+ * 
+ * @param n çŠ¶æ€ç»´åº¦
+ * @param p æ§åˆ¶ç»´åº¦
+ * @param y è¾“å‡ºç»´åº¦
+ * @param N é¢„æµ‹æ­¥æ•°
+ */
 MPC_Controller::MPC_Controller(const int n, const int p, const int y, const int N) : n(n), p(p), y(y), N(N)
 {
-    // ³õÊ¼»¯¾ØÕó
     x = VectorXd::Zero(n);
     x_ref = VectorXd::Zero((N + 1) * n);
     u_out = VectorXd::Zero(N * p);
@@ -37,7 +44,6 @@ MPC_Controller::MPC_Controller(const int n, const int p, const int y, const int 
     Q = MatrixXd::Zero(n, n);
     R = MatrixXd::Zero(p, p);
     F = MatrixXd::Zero(n, n);
-    // Cc = MatrixXd ::Identity(y, n);
     Q_bar = MatrixXd::Identity((N + 1) * n, (N + 1) * n);
     R_bar = MatrixXd::Zero(N * p, N * p);
 
@@ -45,12 +51,9 @@ MPC_Controller::MPC_Controller(const int n, const int p, const int y, const int 
     x_max = VectorXd::Zero(n);
     u_min = VectorXd::Zero(p);
     u_max = VectorXd::Zero(p);
-    // y_min = VectorXd::Zero(y);
-    // y_max = VectorXd::Zero(y);
 
     M = MatrixXd::Zero((N + 1) * n, n);
     C = MatrixXd::Zero((N + 1) * n, N * p);
-    // P = MatrixXd::Zero(n, n);
 
     H = MatrixXd::Zero(N * p, N * p);
     g = VectorXd::Zero(N * p);
@@ -74,47 +77,35 @@ MPC_Controller::MPC_Controller(const int n, const int p, const int y, const int 
     BuildPredictionMatrices();
 }
 
+/**
+ * @brief MPC_Controller è®¾ç½®çŠ¶æ€
+ * 
+ * @param x_ çŠ¶æ€å‘é‡
+ */
 void MPC_Controller::Set_x(const VectorXd& x_)
 {
     x = x_;
 }
 
-
+/**
+ * @brief MPC_Controller æ„å»ºé¢„æµ‹çŸ©é˜µ
+ * 
+ */
 void MPC_Controller::BuildPredictionMatrices()
 {
-    // ¹¹½¨M¾ØÕó
-    // MatrixXd A_power = MatrixXd::Identity(n, n);
-    // for (int i = 0; i < N + 1; i++)
-    // {
-    //     M.block(i * n, 0, n, n) = A_power;
-    //     A_power = A * A_power;
-    // }
 
-    // // ¹¹½¨C¾ØÕó
-    // for (int i = 0; i < N + 1; i++)
-    // {
-    //     A_power = MatrixXd::Identity(n, n);
-    //     for (int j = 0; j < i; j++)
-    //     {
-    //         C.block(i * n, (i - j - 1) * p, n, p) = A_power * B;
-    //         A_power = A * A_power;
-    //     }
-    // }
-
-    // ¹¹½¨ M ¾ØÕó (N+1)n x n
     M.block(0, 0, n, n) = MatrixXd::Identity(n, n);
     for (int i = 1; i <= N; i++)
     {
         M.block(i * n, 0, n, n) = A * M.block((i - 1) * n, 0, n, n);
     }
 
-    // ¹¹½¨ C ¾ØÕó (N+1)n x Np
     C.setZero();
-    for (int i = 1; i <= N; i++) // ´ÓµÚ1²½Ô¤²â¿ªÊ¼ÓĞ¿ØÖÆÊäÈëÓ°Ïì
+    for (int i = 1; i <= N; i++)
     {
         for (int j = 0; j < i; j++)
         {
-            // C ¾ØÕóµÄµÚ i ¸ö×´Ì¬¿éÊÜµÚ j ¸öÊäÈë¿éµÄÓ°ÏìÏµÊıÎª A^(i-j-1) * B
+
             MatrixXd A_pow = MatrixXd::Identity(n, n);
             for(int k=0; k < (i-j-1); k++) A_pow = A * A_pow;
             
@@ -123,75 +114,45 @@ void MPC_Controller::BuildPredictionMatrices()
     }
 }
 
-
+/**
+ * @brief MPC_Controller æ„å»ºæµ·æ£®çŸ©é˜µ
+ * 
+ */
 void MPC_Controller::BuildHessianMatrices()
 {
-    // // ¹¹½¨Hessian¾ØÕó
-    // for (int i = 0; i < N; i++)
-    // {
-    //     Q_bar.block(i * n, i * n, n, n) = Q;
-    // }
-    // Q_bar.block((N) * n, (N) * n, n, n) = F; // ÖÕ¶Ë´ú¼Û
-
-    // for (int i = 0; i < N; i++)
-    // {
-    //     R_bar.block(i * p, i * p, p, p) = R;
-    // }
-
-    // H = (C.transpose() * Q_bar * C) + R_bar;
-
-    // È·±£ Q_bar Î¬¶ÈÎª (N+1)n x (N+1)n
     Q_bar.setZero(); 
     for (int i = 0; i < N; i++)
     {
         Q_bar.block(i * n, i * n, n, n) = Q;
     }
-    // ×îºóÒ»¸ö¿éÊ¹ÓÃÖÕ¶Ë´ú¼Û F
     Q_bar.block(N * n, N * n, n, n) = F; 
 
-    // R_bar Î¬¶ÈÎª Np x Np
     R_bar.setZero();
     for (int i = 0; i < N; i++)
     {
         R_bar.block(i * p, i * p, p, p) = R;
     }
 
-    // ±ê×¼ QP ĞÎÊ½: H = 2 * (C' * Q_bar * C + R_bar)
-    // qpOASES Çó½âµÄÊÇ 0.5 * x' * H * x£¬ËùÒÔÕâÀï½¨Òé³Ë 2 »òÕß±£³ÖÒ»ÖÂ
     H = (C.transpose() * Q_bar * C) + R_bar;
 }
 
 
+/**
+ * @brief MPC_Controller æ„å»ºæ¢¯åº¦å‘é‡
+ * 
+ */
 void MPC_Controller::BuildGradientVector()
 {
-//     // ¹¹½¨GradientÏòÁ¿
-//     g = VectorXd::Zero(N * p);
-
-//     g = C.transpose() * Q_bar * (M * x - x_ref);
-
-    // ±ê×¼ QP Ìİ¶È: g = 2 * C' * Q_bar * (M * x - x_ref)
-    // ×¢Òâ£ºx_ref µÄÎ¬¶È±ØĞëÊÇ (N+1)n£¬°üº¬´Ó k=0 µ½ k=N µÄËùÓĞ²Î¿¼×´Ì¬
     g = C.transpose() * Q_bar * (M * x - x_ref);
 }
 
+/**
+ * @brief MPC_Controller æ„å»ºçº¦æŸè¾¹ç•Œ
+ * 
+ */
 void MPC_Controller::BuildConstraintBounds()
 {
-    // for (int i = 0; i < N; i++)
-    // {
-    //     A_mat.block(i * (n + p), 0, n + p, n + p) = MatrixXd::Identity(n + p, n + p);
-    // }
-    //
-    // for (int i = 0; i < N; i++)
-    // {
-    // lb.segment(i * (n + p), n) = x_min;
-    // lb.segment(i * (n + p) + n, p) = u_min;
-    // ub.segment(i * (n + p), n) = x_max;
-    // ub.segment(i * (n + p) + n, p) = u_max;
-    // }
-    //
-    // lba = lb;
-    // uba = ub;
-
+   
     for (int i = 0; i < N; i++)
     {
         lb.segment(i * p, p) = u_min;
@@ -199,15 +160,16 @@ void MPC_Controller::BuildConstraintBounds()
     }
 }
 
+/**
+ * @brief MPC_Controller åˆå§‹åŒ–QPé—®é¢˜
+ * 
+ */
 void MPC_Controller::initialize_qp()
 {
-    // ¹¹½¨Ìİ¶ÈÏòÁ¿ºÍÔ¼Êø±ß½ç
     BuildGradientVector();
     BuildConstraintBounds();
 
     int nWSR = 100;
-
-    // ³õÊ¼»¯QPÎÊÌâ
 
     solver_status = qp.init(
         H.data(),
@@ -224,9 +186,12 @@ void MPC_Controller::initialize_qp()
     is_initialized = 1;
 }
 
+/**
+ * @brief MPC_Controller è®¡ç®—æ§åˆ¶
+ * 
+ */
 void MPC_Controller::MPC_Calculate()
 {
-    // ¹¹½¨Ìİ¶ÈÏòÁ¿ºÍÔ¼Êø±ß½ç
     BuildGradientVector();
     BuildConstraintBounds();
 
