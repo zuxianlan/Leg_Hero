@@ -10,6 +10,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "robot.h"
+#include "user_lib.h"
 /* Define --------------------------------------------------------------------*/
 
 /* Variable && Struct --------------------------------------------------------*/
@@ -18,60 +19,11 @@
 
 /* Function ------------------------------------------------------------------*/
 
-/**
- * @param input      ��ǰ�����ź� (bool)
- * @param lastInput  ���ڼ����ص�״ָ̬�� (bool*)
- * @param state      ���״�?ָ�룬���ɹ���ȡ�� (bool*)
- * @param mode       �����л���1 Ϊ��������ģʽ��2 Ϊ�̰�����ģʽ
- */
-void StateChange(bool input, bool* lastInput, bool* state, int mode)
-{
-    // static ����ֻ���ڵ�һ�ε���ʱ��ʼ����֮���һֱ���������?
-    static int internalTimer = 0; 
-    static bool long_triggered = 0;
-    const int LONG_THRESHOLD = 800; // ������ֵ������ѭ��Ƶ�ʵ���
-
-    if (!lastInput || !state) return;
-
-    if(mode == 1)
-    {
-        if(input)
-        {
-            internalTimer++;
-            // ����ģʽ��������ֵ�ŷ�ת
-            if (internalTimer >= LONG_THRESHOLD && !long_triggered) 
-            {
-                *state = !*state;
-                long_triggered = true;
-                internalTimer = 0; // �ɿ����ʱ������?
-
-            }
-        }
-        else
-        {
-            long_triggered = false;
-        }
-    }
-    else if(mode == 2)
-    {
-        if (input && !(*lastInput)) 
-        {
-            if (internalTimer > -1) 
-            {
-                *state = !*state;
-                internalTimer = 0; // �ɿ����ʱ������?
-            }
-        }
-    }
-
-    *lastInput = input;
-}
 
 void Class_FSM_Chassis::TIM_1ms_Calculate_PeriodElapsedCallback()
 {
     Status[Now_Status_Serial].Count_Time++;
 
-    // �Լ����ű�д״̬ת�ƺ���
     switch (Now_Status_Serial)
     {
     case NORMAL:
@@ -354,10 +306,6 @@ void Robot::Init()
 
     GamePad.Open();
 
-    // INS.gyro = mc02_SerialPort.Rx_Data.gyro;
-    // INS.accel = mc02_SerialPort.Rx_Data.accel;
-    // INS.MotionAccel_b = mc02_SerialPort.Rx_Data.motionAccel_b;
-
     // Offset.initialise(100);
     // Ahrs.enable_gradient_descent(true);
 
@@ -379,7 +327,6 @@ void Robot::Init()
     Chassis.mc_02 = &mc02_SerialPort;
     Chassis.Init();
 
-    // Slope_X.Init(1.0f / 10000000000.0f, 5.0f / 2000.0f, Slope_First_REAL);
     Slope_X.Init(1.0f/5000.0f, 1.0f/600.0f, Slope_First_REAL);
     Slope_X.Set_Max_Target_Up_Delta(2.5f);
     Slope_X.Set_Max_Target_Down_Delta(2.5f);

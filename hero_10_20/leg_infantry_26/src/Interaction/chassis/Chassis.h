@@ -23,12 +23,12 @@
 #define spring_forceR 0
 
 #define N 15
-#define WHEEL_BASE          0.25f    // ÂÖ¾à m 
-#define SLIP_DVW_THRESHOLD  0.06f    // ¡¾ºËÐÄ¡¿¦¤v_wheel ? ¦¤v_acc ãÐÖµ m/s
-#define SLIP_DVB_THRESHOLD  1.20f    // |v_wheel| ? |v_body| Ê¹ÄÜÃÅ m/s
-#define SLIP_DBY_THRESHOLD  0.90f    // ÂÖ¹ÀËã yaw ÂÊ ? ÍÓÂÝ yaw ÂÊ Ê¹ÄÜÃÅ rad/s
-#define SLIP_TORQUE_FACTOR  0.60f    // ´ò»¬ÂÖÁ¦¾ØÏµÊý£¨½µÅ¤ 40%£©
-#define SLIP_RECOVER_RATE   0.05f    // »Ö¸´Ò»½×ÏµÊý£¨@1kHz ¡Ö 20ms Ê±¼ä³£Êý£©
+#define WHEEL_BASE          0.25f    // ï¿½Ö¾ï¿½ m 
+#define SLIP_DVW_THRESHOLD  0.06f    // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½v_wheel ? ï¿½ï¿½v_acc ï¿½ï¿½Öµ m/s
+#define SLIP_DVB_THRESHOLD  1.20f    // |v_wheel| ? |v_body| Ê¹ï¿½ï¿½ï¿½ï¿½ m/s
+#define SLIP_DBY_THRESHOLD  0.90f    // ï¿½Ö¹ï¿½ï¿½ï¿½ yaw ï¿½ï¿½ ? ï¿½ï¿½ï¿½ï¿½ yaw ï¿½ï¿½ Ê¹ï¿½ï¿½ï¿½ï¿½ rad/s
+#define SLIP_TORQUE_FACTOR  0.60f    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¤ 40%ï¿½ï¿½
+#define SLIP_RECOVER_RATE   0.05f    // ï¿½Ö¸ï¿½Ò»ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½@1kHz ï¿½ï¿½ 20ms Ê±ï¿½ä³£ï¿½ï¿½ï¿½ï¿½
 
 /* Enum ----------------------------------------------------------------------*/
 typedef enum
@@ -223,9 +223,8 @@ public:
     inline float Get_v_ins();
     inline bool  Get_slip_active();
 
-    inline float Get_v_filter();       // kf.x_hat(0)  ÈÚºÏºóµÄËÙ¶È
-    inline float Get_a_filter();       // kf.x_hat(1)  ÈÚºÏºóµÄ¼ÓËÙ¶È
-    inline float Get_omega_filter();   // kf.x_hat(2)  ÈÚºÏºóµÄÆ«º½½ÇËÙ¶È£¨Ë³ÊÖ¼ÓÉÏ£¬Äã½ÓÏÂÀ´Òª½Ó err[3]£©
+    inline float Get_v_filter();       // kf.x_hat(0)  ï¿½ÚºÏºï¿½ï¿½ï¿½Ù¶ï¿½
+    inline float Get_a_filter();       // kf.x_hat(1)  ï¿½ÚºÏºï¿½Ä¼ï¿½ï¿½Ù¶ï¿½
 
     float ll,rr = 0;
     float lqr_term[10] = {};
@@ -332,25 +331,25 @@ private:
     float dt = 0.002;
     float dt_mpc = 0.002;
 
-    /* ´ò»¬²ßÂÔ */
+    /* ï¿½ò»¬²ï¿½ï¿½ï¿½ */
     float last_wheel_omega_l = 0.0f;
     float last_wheel_omega_r = 0.0f;
     float slip_factor_l = 1.0f;
     float slip_factor_r = 1.0f;
 
-    float v_wheel_l = 0, v_wheel_r = 0;        // µ¥ÂÖÇ°½øËÙ¶È m/s
+    float v_wheel_l = 0, v_wheel_r = 0;        // ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Ù¶ï¿½ m/s
     float last_v_wheel_l = 0, last_v_wheel_r = 0;
-    float dv_wheel[2] = {0, 0};                // 4µã¾ùÖµºóµÄÂÖËÙÔöÁ¿
+    float dv_wheel[2] = {0, 0};                // 4ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     float wheel_aver[2][4] = {};               // Mean_Filtering ×´Ì¬
-    float f_dv_wheel[2] = {0, 0};              // ´ò»¬Ë²¼äËø´æµÄ |v_wheel|
-    float dv_acc = 0;                          // |a_x ¡¤ dt|
+    float f_dv_wheel[2] = {0, 0};              // ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ |v_wheel|
+    float dv_acc = 0;                          // |a_x ï¿½ï¿½ dt|
     float average_speed = 0.0f;
 
-    int   stall_cnt  = 0;               // ¿¨ËÀ¼ÆÊýÆ÷
+    int   stall_cnt  = 0;               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     bool  stalling   = false;
-    bool slip_flag[2] = {false, false};        // [0]×ó [1]ÓÒ
-    bool slip_active = false;                  // ÈÎÒ»ÂÖ´ò»¬ ¡ú ´¥·¢ Q/R ÇÐ»»
-    bool last_slip_flag[2] = {false, false};   // ÉÏÅÄ×´Ì¬£¨¹© LQR ·Ç spin ·ÖÖ§¸´Î»£©
+    bool slip_flag[2] = {false, false};        // [0]ï¿½ï¿½ [1]ï¿½ï¿½
+    bool slip_active = false;                  // ï¿½ï¿½Ò»ï¿½Ö´ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Q/R ï¿½Ð»ï¿½
+    bool last_slip_flag[2] = {false, false};   // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ LQR ï¿½ï¿½ spin ï¿½ï¿½Ö§ï¿½ï¿½Î»ï¿½ï¿½
 };
 
 inline void class_Chassis::Set_Target_X(float __Target_X)
@@ -530,11 +529,6 @@ inline float class_Chassis::Get_v_filter()
 inline float class_Chassis::Get_a_filter()
 {
     return kf.x_hat(1);
-}
-
-inline float class_Chassis::Get_omega_filter()
-{
-    return kf.x_hat(2);
 }
 
 float Float_Math_Constrain(float *x, float Min, float Max);

@@ -12,9 +12,7 @@
 #include "Chassis.h"
 #include <ranges>
 #include "Algorithm/VMC/lqr_k_calc.h"
-#include "Algorithm/LESO/leso_A_calc.h"
-#include "Algorithm/LESO/leso_B_calc.h"
-#include "Algorithm/LESO/leso_L_calc.h"
+#include "user_lib.h"
 /* Define --------------------------------------------------------------------*/
 
 /* Enum ----------------------------------------------------------------------*/
@@ -67,59 +65,6 @@ float P[40][6] =
     {-17.042, 48.374, -862.17, -45.067, 270.18, 854.23},
     {1.9139, -9.383, -64.232, 9.854, 46.631, 42.744}
 };
-
-void first_order_filter_calc(float x, float *y, float *last_y, float alpha)
-{
-    *y = alpha * x + (1-alpha) * *last_y;
-    *last_y = *y;
-}
-
-float Max_Output(float num,float max)
-{
-	if(num>=max) return max;
-	else if(num<=-max) return -max;
-	else return num;
-}
-
-float Float_Math_Constrain(float *x, float Min, float Max)
-{
-    if (*x < Min)
-    {
-        *x = Min;
-    }
-    else if (*x > Max)
-    {
-        *x = Max;
-    }
-    return (*x);
-}
-
-float power_calculate(float K_0, float K_1, float K_2, float A, float Current, float Omega)
-{
-    return (K_0 * Current * Omega + K_1 * Omega * Omega + K_2 * Current * Current + A);
-}
-
-float Float_Math_Abs(float x)
-{
-	return ((x > 0) ? x : -x);
-}
-
-void normalizeAngle(float *angle) 
-{
-    float normalized = std::fmod(*angle, 2.0 * M_PI);
-    
-    // ȷ�������� [0, 2��)
-    if (normalized < 0) {
-        normalized += 2.0 * M_PI;
-    }
-    
-    // ������ڵ���? �У���ȥ 2�� �õ� [-��, ��)
-    if (normalized >= M_PI) {
-        normalized -= 2.0 * M_PI;
-    }
-    
-    *angle = normalized;
-}
 
 void class_Chassis::Init()
 {
@@ -180,10 +125,7 @@ void class_Chassis::Init()
                   0,0,0,1e4;
 
     MPC_body.R << 0.9,0,
-                  0,0.9;
-
-    // MPC_body.R << 0.9e1,0,
-    //               0,0.9e1;              
+                  0,0.9;            
 
     MPC_body.A << 1,dt_mpc,0,0,
                   0,1,0,0,
@@ -194,19 +136,6 @@ void class_Chassis::Init()
                   -(r*dt_mpc/I_r), r*dt_mpc/I_r,
                   0,0,
                   dt_mpc/m, dt_mpc/m;
-
-    // MPC_body.A <<
-    // 1,  0.0100, 0, 0,
-    //    0,  1,      0, 0,
-    //    0,  0,      1, 0.0102,
-    //    0,  0,      0, 1.0408;
-    // MPC_body.B <<
-    // -5.3333e-6,  5.3333e-6,
-    //    -0.0011,     0.0011,
-    //     2.0269e-6,  2.0269e-6,
-    //     4.0811e-4,  4.0811e-4;
-
-
 
     MPC_body.BuildPredictionMatrices();
     MPC_body.BuildHessianMatrices();
@@ -219,55 +148,13 @@ void class_Chassis::Init()
         Motor_Wheel[i].Power_K_2 = 0.1519f;
         Motor_Wheel[i].Power_A = 1.3544f;
     }
-
-    LESO_left.Init(z0);
-
-    A <<
-1.0004,      0.0010,        0.0,         0.0,      3.4499e-5,   1.1499e-8,
-0.7210,      1.0004,        0.0,         0.0,      0.0690,      3.4499e-5,
--1.0650e-4, -3.5499e-8,      1.0,    1.0000e-3,     -3.6157e-6,  -1.2051e-9,
--0.2130,    -1.0650e-4,      0.0,         1.0,     -0.0072,     -3.6157e-6,
-8.5516e-5,   2.8504e-8,      0.0,         0.0,      1.0001,      0.0010,
-0.1710,      8.5516e-5,      0.0,         0.0,      0.1162,      1.0001;
-
-    B <<
-    -2.3442e-05,   4.8960e-06,
--0.0469,       0.0098,
-7.6118e-06,   -1.2675e-06,
-0.0152,       -0.0025,
--2.5785e-06,   2.5192e-06,
--0.0052,       0.0050;
-
-    L_Gein <<
-0.1158,  0.0001,  0.0002, -0.0000,  0.0003,  0.0036,
-1.4292,  0.1944, -0.0146, -0.0092,  0.0929,  0.0029,
-0.0005, -0.0078,  0.0216,  0.0005,  0.0006,  0.0001,
--0.4357, -0.0332,  0.0030,  0.0877, -0.0074,  0.0038,
-0.0005,  0.0003,  0.0003,  0.0023,  0.0998,  0.0018,
-0.2601,  0.0078, -0.0010,  0.0036,  0.1660,  0.1211,
-0.0116, -0.0747,  0.0110,  0.0128,  0.0034,  0.0612,
-0.0194, -0.0026, -0.0019,  0.0488,  0.0010,  0.3254;
-
-    Ae.block(0,0,6,6) = A;
-    Ae.block(0,6,6,2) = B;
-    Ae.block(6,6,2,2) = Eigen::MatrixXf::Identity(2,2);
-
-    Be.block(0,0,6,2) = B;
-
-    Ce.block(0,0,6,6) = Eigen::MatrixXf::Identity(6,6);
-
-    LESO_left.SetMatrices(Ae, Be, Ce);
-    LESO_left.SetObserverGain(L_Gein);
-
-    LESO_right.Init(z0);
-    LESO_right.SetMatrices(Ae, Be, Ce);
-    LESO_right.SetObserverGain(L_Gein);
 }
 
-
+/*
+ * @brief 更新反馈信息
+ */
 void class_Chassis::feedback_update()
 {
-
     normalizeAngle(&mc_02->Rx_Data.Motor_joint[0].Position);
     normalizeAngle(&mc_02->Rx_Data.Motor_joint[1].Position);
     normalizeAngle(&mc_02->Rx_Data.Motor_joint[2].Position);
@@ -279,7 +166,6 @@ void class_Chassis::feedback_update()
     pitch_l = -(INS->pitch - Target_Pitch);
     d_pitch_l = -INS->gyro[0];
 
-    // �����ȳ�l0�Լ�״̬����theta d_theta
     left_leg.Set_phi1(static_cast<float>(std::numbers::pi) + mc_02->Rx_Data.Motor_joint[1].Position);
     left_leg.Set_dphi1(mc_02->Rx_Data.Motor_joint[1].omega);
     left_leg.Set_phi4(mc_02->Rx_Data.Motor_joint[0].Position);
@@ -292,36 +178,22 @@ void class_Chassis::feedback_update()
     right_leg.Set_dphi4(-mc_02->Rx_Data.Motor_joint[3].omega);
     right_leg.VMC_Calc_1();
 
-    
-    // Nthetal = static_cast<float>(std::numbers::pi) + mc_02->Rx_Data.Motor_joint[1].Position - static_cast<float>(std::numbers::pi)/2 - left_leg.Get_theta();
-    // Nthetar = static_cast<float>(std::numbers::pi) - mc_02->Rx_Data.Motor_joint[2].Position - static_cast<float>(std::numbers::pi)/2 - right_leg.Get_theta();
-    Nthetal = M_PI - mc_02->Rx_Data.Motor_joint[0].Position + left_leg.Get_alpha() - M_PI / 2;
-    Nthetar = M_PI + mc_02->Rx_Data.Motor_joint[3].Position + right_leg.Get_alpha() - M_PI / 2;
+    // ========== 当前身体高度与高度变化率（考虑roll角补偿） ==========
+    Now_height = (left_leg.Get_L0() * cosf(INS->roll) + right_leg.Get_L0() * cosf(INS->roll)) / 2;
+    Now_dheight = (left_leg.Get_dL0() * cosf(INS->roll) + right_leg.Get_dL0() * cosf(INS->roll)) / 2;
 
-    normalizeAngle(&Nthetal);
-    normalizeAngle(&Nthetar);
+    Fitting_K_Calc(Fitting_K, P, left_leg.Get_L0(), right_leg.Get_L0());
 
-    Now_height = (left_leg.Get_L0()*cosf(INS->roll) + right_leg.Get_L0()*cosf(INS->roll))/2;
-    Now_dheight = (left_leg.Get_dL0()*cosf(INS->roll) + right_leg.Get_dL0()*cosf(INS->roll))/2;
-
-    Fitting_K_Calc(Fitting_K,P,left_leg.Get_L0(),right_leg.Get_L0());
-
-    err[0] = (X_filter - Target_X);                  
-    err[1] = (Velocity_filter - Target_Velocity);
-    // err[2] = Max_Output((Yaw_Angle - Target_Yaw), 1.25);               
-    err[2] = 0;               
-    err[3] = (INS->gyro[2] - Target_Omega);
-    //err[3] = (kf.x_hat(2) - Target_Omega);
-    err[4] = Max_Output((left_leg.Get_theta() - Target_Theta), 0.5);  
-    err[5] = (left_leg.Get_dtheta() - 0);
-    err[6] = Max_Output((right_leg.Get_theta() - Target_Theta), 0.5); 
-    err[7] = (right_leg.Get_dtheta() - 0);
-    err[8] = Max_Output((INS->pitch - 0), 1.0);                       
-    err[9] = (INS->gyro[0] - 0);
-
-
-    // lambda1 = fabs(pitch_l) * 0.45;
-
+    err[0] = (X_filter - Target_X);                                      // 水平位移误差
+    err[1] = (Velocity_filter - Target_Velocity);                        // 水平速度误差
+    err[2] = 0;                                                          // 偏航角误差（当前禁用）
+    err[3] = (INS->gyro[2] - Target_Omega);                              // 偏航角速度误差
+    err[4] = Max_Output((left_leg.Get_theta() - Target_Theta), 0.5);     // 左腿角度误差（限幅±0.5）
+    err[5] = (left_leg.Get_dtheta() - 0);                                // 左腿角速度误差
+    err[6] = Max_Output((right_leg.Get_theta() - Target_Theta), 0.5);    // 右腿角度误差（限幅±0.5）
+    err[7] = (right_leg.Get_dtheta() - 0);                               // 右腿角速度误差
+    err[8] = Max_Output((INS->pitch - 0), 1.0);                          // 俯仰角误差（限幅±1.0）
+    err[9] = (INS->gyro[0] - 0);                                         // 俯仰角速度误差
 }
 
 void class_Chassis::Zero_Force_Control()
@@ -563,14 +435,6 @@ void class_Chassis::Control_leg()
     right_leg.Set_F0(-MPC_body.u_out(1) / 1.5 + spring_forcer);
     right_leg.VMC_Calc_2();
 
-    // left_leg.Set_Tp(0.0);
-    // left_leg.Set_F0( - spring_force * cos(Nthetal));
-    // left_leg.VMC_Calc_2();
-
-    // right_leg.Set_Tp(0.0);
-    // right_leg.Set_F0(+ spring_force * cos(Nthetar));
-    // right_leg.VMC_Calc_2();
-    
 
 }
 
@@ -617,13 +481,6 @@ void class_Chassis::Control_leg_right(float target)
 
 void class_Chassis::UP_Staris_Control_leg()
 {
-    // left_leg.Set_Tp(-0.0);
-    // left_leg.Set_F0( 0.0);
-    // left_leg.VMC_Calc_2();
-
-    // right_leg.Set_Tp(-0.0);
-    // right_leg.Set_F0(0.0);
-    // right_leg.VMC_Calc_2();
 
     PID_Omega.Set_Integral_Error(0);
     PID_tp.Set_Target(0);
@@ -677,16 +534,13 @@ void class_Chassis::UP_Staris_Control_leg()
     spring_forcer = 30 - 10*(1 - (right_leg.Get_L0()-0.1)/0.24);
 
     left_leg.Set_F0(MPC_body.u_out(0) / 3.5 - spring_forcel - 0);
-    // left_leg.Set_F0( - spring_forceL * sin(Nthetal));
     left_leg.VMC_Calc_2();
-
 
     right_leg.Set_Tp(-1.0 + PID_tp_omega.Get_Out());
 
     T_R = 0.0;
     
     right_leg.Set_F0(-MPC_body.u_out(1) / 3.5 + spring_forcer + 0);
-    // right_leg.Set_F0(+ spring_forceR * sin(Nthetar));
     right_leg.VMC_Calc_2();
 
     X_filter = 0;
@@ -803,7 +657,9 @@ void class_Chassis::Self_Observe()
     X_filter = X_filter + Velocity_filter * (static_cast<float>(1)/1000.0f);
 
 }
-/* 4 点滑动均值 */
+/**
+ * @brief 4 点滑动均值滤波，对输入信号进行平滑处理
+ */
 static float Mean_Filtering4(float input, float *aver)
 {
     aver[0] = aver[1]; aver[1] = aver[2]; aver[2] = aver[3]; aver[3] = input;
@@ -954,112 +810,6 @@ void Wheel_Power_Control(motor_power *motor)
 }
 
 
-void class_Chassis::Chassis_Power_Control()
-{
-    // �������?
-    float available_power = 150.0f;
-    float consume_power = 0.0f;
-    float wheel_consume_power = 0.0f;
-    float wheel_power_single[2];
-    static uint8_t mod = 0;
-    mod++;
-  
-    // if(mod == 100)
-    // {   //100ms����һ��
-    //     Chassis_Power_Control->PID_Power_buffer.Target = 40.0f;
-    //     Chassis_Power_Control->PID_Power_buffer.Now = power_heat_data.buffer_energy;
-    //     PID_TIM_Adjust_PeriodElapsedCallback(&Chassis_Power_Control->PID_Power_buffer);
-    //     PID_Set_Integral_Error(&Chassis_Power_Control->PID_Power_buffer, 0.0f);
-    //     mod = 0;
-    //     // ����PID��������̬���������?
-    //     available_power += Chassis_Power_Control->PID_Power_buffer.Out;
-    // }
-
-    // ��ȡ���������ʹ���ֵ
-    wheel_power_single[0] = Motor_Wheel[0].Power_Estimate;
-    wheel_power_single[1] = Motor_Wheel[1].Power_Estimate;
-    for (int i = 0; i < 2; i++)
-    {
-        // ������������, �������벹��
-        if (wheel_power_single[i] > 0)
-        {
-            consume_power += wheel_power_single[i];
-            wheel_consume_power += wheel_power_single[i];
-        }
-        else
-        {
-            available_power += -wheel_power_single[i];
-        }
-    }
-
-    // ���������ʿ���
-    Wheel_Factor = Chassis_Wheel_Power_Limit_Control(available_power, wheel_consume_power);
-    for (int i = 0; i < 2; i++)
-    {
-        if (wheel_power_single[i] > 0)
-        {
-            Motor_Wheel[i].Power_Factor = Wheel_Factor;
-        }
-        else
-        {
-            Motor_Wheel[i].Power_Factor = 1.0f;
-        }
-    }
-    // std::cout<<Wheel_Factor<<std::endl;
-
-  
-    Motor_Wheel[0].Now_Omega = mc_02->Rx_Data.Motor_wheel[0].omega;
-    Motor_Wheel[0].Target_Current = (T_L_Speed + T_L_YAW) / 0.3;
-    // Motor_Wheel[0].Target_Current = mc_02->Rx_Data.current[0];
-
-    Motor_Wheel[1].Now_Omega = -mc_02->Rx_Data.Motor_wheel[1].omega;
-    Motor_Wheel[1].Target_Current = (T_R_Speed - T_R_YAW) / 0.3;
-    // Motor_Wheel[1].Target_Current = mc_02->Rx_Data.current[1];
-
-    Wheel_Power_Control(&Motor_Wheel[0]);
-    Wheel_Power_Control(&Motor_Wheel[1]);
-
-    T_L_limit = Motor_Wheel[0].Target_Current * 0.3;
-    T_R_limit = Motor_Wheel[1].Target_Current * 0.3;
-
-    // k1 = T_L_limit / (T_L_Speed + T_L_YAW);
-    // k2 = T_R_limit / (T_R_Speed + T_R_YAW);
-
-    Float_Math_Constrain(&k1, 0.0f, 1.0f);
-    Float_Math_Constrain(&k2, 0.0f, 1.0f);
-
-    T_L = (LQR_K_L[0][0]*(left_leg.Get_theta())
-                +LQR_K_L[0][1]*(left_leg.Get_dtheta())
-                +LQR_K_L[0][2]*(X_filter - Target_X) * k1
-                +LQR_K_L[0][3]*(Velocity_filter - Target_Velocity) * k1
-                +LQR_K_L[0][4]*(pitch_l) 
-                +LQR_K_L[0][5]*(d_pitch_l))+ PID_Omega.Get_Out();
-
-
-    // T_L += PID_Omega.Get_Out() * k1;
-    T_L = T_L_M + T_L_limit;
-
-    T_R = (LQR_K_R[0][0]*(right_leg.Get_theta())
-                +LQR_K_R[0][1]*(right_leg.Get_dtheta())
-                +LQR_K_R[0][2]*(X_filter - Target_X) * k2
-                +LQR_K_R[0][3]*(Velocity_filter - Target_Velocity) * k2
-                +LQR_K_R[0][4]*(pitch_l)
-                +LQR_K_R[0][5]*(d_pitch_l))- PID_Omega.Get_Out();
-
-
-    // T_R += - PID_Omega.Get_Out() * k2;
-    T_R = T_R_M + T_R_limit;
-
-    left_leg.Set_Tp(Tp_L - PID_tp_omega.Get_Out());
-
-    left_leg.VMC_Calc_2();
-
-    right_leg.Set_Tp(Tp_R + PID_tp_omega.Get_Out());
-
-    right_leg.VMC_Calc_2();
-}
-
-
 void class_Chassis::MPC_Body_Calc()
 {
     if (fabs(Target_height - last_Target_height) > 0.001f) 
@@ -1196,111 +946,3 @@ void class_Chassis::LQR_Calc()
     lqr_term[8] = err[8] * Fitting_K[0][8];
     lqr_term[9] = err[9] * Fitting_K[0][9];
 }
-
-void class_Chassis::LESO_UPdate_Left()
-{
-    float tmp_A[64], tmp_B[16], tmp_L[48] = {};
-    leso_A_calc(left_leg.Get_L0(), tmp_A);
-    leso_B_calc(left_leg.Get_L0(), tmp_B);
-    leso_L_calc(left_leg.Get_L0(), tmp_L);
-
-
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            Ae(j, i) = tmp_A[i*8 + j];
-        }
-    }
-
-    for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            Be(j, i) = tmp_B[i*8 + j];
-        }
-    }
-
-    for (int i = 0; i < 6; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            L_Gein(j, i) = tmp_L[i*8 + j];
-        }
-    }
-
-    LESO_left.SetMatrices(Ae,Be,Ce);
-    LESO_left.SetObserverGain(L_Gein);
-
-    u_left <<
-    T_L_M + T_L_Speed, Tp_L;
-
-    y_left <<
-    left_leg.Get_theta(), left_leg.Get_dtheta(), X_filter, Velocity_filter, pitch_l, d_pitch_l;
-    
-    LESO_left.Update(u_left, y_left);
-    d_hat_left = LESO_left.get_disturbance_estimate();
-    // d_hat_left(0) = stop_flag ? 0.0f : d_hat_left(0);
-    // d_hat_left(1) = stop_flag ? 0.0f : d_hat_left(1);
-
-    // first_order_filter_calc(d_hat_left(0), &d_hat_left(0), &last_d_hat_left(0), dt / (dt + 1 / (2 * M_PI * 1.0f)));
-    // first_order_filter_calc(d_hat_left(1), &d_hat_left(1), &last_d_hat_left(1), dt / (dt + 1 / (2 * M_PI * 1.0f)));
-
-    LESO_dhat[0] = d_hat_left(0);
-    LESO_dhat[1] = d_hat_left(1);
-}
-
-void class_Chassis::LESO_UPdate_Right()
-{
-    float tmp_A[64], tmp_B[16], tmp_L[48] = {};
-    leso_A_calc(right_leg.Get_L0(), tmp_A);
-    leso_B_calc(right_leg.Get_L0(), tmp_B);
-    leso_L_calc(right_leg.Get_L0(), tmp_L);
-
-
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            Ae(j, i) = tmp_A[i*8 + j];
-        }
-    }
-
-    for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            Be(j, i) = tmp_B[i*8 + j];
-        }
-    }
-
-    for (int i = 0; i < 6; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            L_Gein(j, i) = tmp_L[i*8 + j];
-        }
-    }
-
-    LESO_right.SetMatrices(Ae,Be,Ce);
-    LESO_right.SetObserverGain(L_Gein);
-
-    u_right <<
-    T_R_M + T_R_Speed, Tp_R;
-
-    y_right <<
-    right_leg.Get_theta(), right_leg.Get_dtheta(), X_filter, Velocity_filter, pitch_l, d_pitch_l;
-    
-    LESO_right.Update(u_right, y_right);
-    d_hat_right = LESO_right.get_disturbance_estimate();
-    // d_hat_right(0) = stop_flag ? 0.0f : d_hat_right(0);
-    // d_hat_right(1) = stop_flag ? 0.0f : d_hat_right(1);
-
-    // first_order_filter_calc(d_hat_right(0), &d_hat_right(0), &d_hat_right(0), dt / (dt + 1 / (2 * M_PI * 1.0f)));
-    // first_order_filter_calc(d_hat_right(1), &d_hat_right(1), &d_hat_right(1), dt / (dt + 1 / (2 * M_PI * 1.0f)));
-
-    LESO_dhat[2] = d_hat_right(0);
-    LESO_dhat[3] = d_hat_right(1);
-}
-
-
