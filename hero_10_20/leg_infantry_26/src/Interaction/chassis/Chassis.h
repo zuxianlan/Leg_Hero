@@ -23,33 +23,33 @@
 #define spring_forceR 0
 
 #define N 15
-#define WHEEL_BASE          0.25f    // �־� m 
-#define SLIP_DVW_THRESHOLD  0.06f    // �����ġ���v_wheel ? ��v_acc ��ֵ m/s
-#define SLIP_DVB_THRESHOLD  1.20f    // |v_wheel| ? |v_body| ʹ���� m/s
-#define SLIP_DBY_THRESHOLD  0.90f    // �ֹ��� yaw �� ? ���� yaw �� ʹ���� rad/s
-#define SLIP_TORQUE_FACTOR  0.60f    // ��������ϵ������Ť 40%��
-#define SLIP_RECOVER_RATE   0.05f    // �ָ�һ��ϵ����@1kHz �� 20ms ʱ�䳣����
+#define WHEEL_BASE          0.25f    
+#define SLIP_DVW_THRESHOLD  0.06f    
+#define SLIP_DVB_THRESHOLD  1.20f    
+#define SLIP_DBY_THRESHOLD  0.90f    
+#define SLIP_TORQUE_FACTOR  0.60f    
+#define SLIP_RECOVER_RATE   0.05f    
 
 /* Enum ----------------------------------------------------------------------*/
 typedef enum
 {
-    CHASSIS_ZERO_FORCE, //????????????
-    CHASSIS_NO_MOVE, //??????????????
-    CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW, //??????????????????????????
-    CHASSIS_NO_FOLLOW_YAW, //????????????????
-    CHASSIS_INFANTRY_SPIN, //???????
+    CHASSIS_ZERO_FORCE, 
+    CHASSIS_NO_MOVE, 
+    CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW, 
+    CHASSIS_NO_FOLLOW_YAW, 
+    CHASSIS_INFANTRY_SPIN, 
     CHASSIS_CHECK_IN,
 } Enum_chassis_mode;
 
 typedef enum
 {
-    NORMAL, // ????????????????
-    OVER_TURN, // ??????????
-    OVER_TURN_UPSIDE1, // ????????????????1
-    OVER_TURN_UPSIDE2, // ????????????????2
-    OVER_TURNING1, // ??????????????????1
-    OVER_TURNING2, // ?????????????????2
-    ABOVE_GROUND, // ???????????????
+    NORMAL, 
+    OVER_TURN, 
+    OVER_TURN_UPSIDE1, 
+    OVER_TURN_UPSIDE2, 
+    OVER_TURNING1, 
+    OVER_TURNING2, 
+    ABOVE_GROUND, 
 } Enum_chassis_fsm_mode;
 
 typedef enum
@@ -68,9 +68,9 @@ typedef enum
 
 typedef struct
 {
-    float Power_Factor;         // ????????????????
-    float Power_Estimate;       // ??????????????????, W
-    float Power_K_0;            // C620??????????????
+    float Power_Factor; 
+    float Power_Estimate; 
+    float Power_K_0; 
     float Power_K_1;
     float Power_K_2;
     float Power_A;
@@ -114,13 +114,9 @@ public:
 
     void Init();
 
-    void sys_NMPC_Init();
-
     void feedback_update();
 
     void Zero_Force_Control();
-
-    void No_Move_Control();
 
     void Follow_Gimbal_Control();
 
@@ -134,23 +130,15 @@ public:
 
     void UP_Staris_Control_leg();
 
-    void NMPC_Solve();
-
     void Self_Observe();
 
     void Ground_Detection();
-
-    void Chassis_Power_Control();
 
     void Slip_Detection_And_Suppression();
 
     void MPC_Body_Calc();
 
     void LQR_Calc();
-
-    void LESO_UPdate_Left();
-
-    void LESO_UPdate_Right();
 
     inline void Set_Target_X(float __Target_X);
 
@@ -212,19 +200,13 @@ public:
 
     inline bool Get_above_flag_r();
 
-    inline float Get_Nthetal();
-
-    inline float Get_Nthetar();
-
     inline float Get_Heigh();
 
-    inline float Get_a_use();
     inline float Get_average_speed();
-    inline float Get_v_ins();
     inline bool  Get_slip_active();
 
-    inline float Get_v_filter();       // kf.x_hat(0)  �ںϺ���ٶ�
-    inline float Get_a_filter();       // kf.x_hat(1)  �ںϺ�ļ��ٶ�
+    inline float Get_v_filter();       // kf.x_hat(0) 
+    inline float Get_a_filter();       // kf.x_hat(1) 
 
     float ll,rr = 0;
     float lqr_term[10] = {};
@@ -286,20 +268,20 @@ private:
     float Now_height = 0;
     float Now_dheight = 0;
 
-    float Velocity_filter = 0; //?????????????? m/s
-    float X_filter = 0; //?????????????? m
+    float Velocity_filter = 0; 
+    float X_filter = 0; 
 
     float pitch_r = 0;
     float d_pitch_r = 0;
     float pitch_l = 0;
     float d_pitch_l = 0;
     float total_yaw = 0;
-    float theta_err = 0; //?????????????
+    float theta_err = 0; 
     float dtheta_err = 0; 
 
-    float Yaw_turn_T = 0; //yaw??????
-    float roll_f0 = 0; //roll??????
-    float leg_tp = 0; //????????????
+    float Yaw_turn_T = 0;
+    float roll_f0 = 0; 
+    float leg_tp = 0; 
 
     float T[4] = {};
     float T_L = 0, T_R = 0;
@@ -331,25 +313,24 @@ private:
     float dt = 0.002;
     float dt_mpc = 0.002;
 
-    /* �򻬲��� */
     float last_wheel_omega_l = 0.0f;
     float last_wheel_omega_r = 0.0f;
     float slip_factor_l = 1.0f;
     float slip_factor_r = 1.0f;
 
-    float v_wheel_l = 0, v_wheel_r = 0;        // ����ǰ���ٶ� m/s
+    float v_wheel_l = 0, v_wheel_r = 0;        
     float last_v_wheel_l = 0, last_v_wheel_r = 0;
-    float dv_wheel[2] = {0, 0};                // 4���ֵ�����������
-    float wheel_aver[2][4] = {};               // Mean_Filtering ״̬
-    float f_dv_wheel[2] = {0, 0};              // ��˲������� |v_wheel|
-    float dv_acc = 0;                          // |a_x �� dt|
+    float dv_wheel[2] = {0, 0};                
+    float wheel_aver[2][4] = {};              
+    float f_dv_wheel[2] = {0, 0};            
+    float dv_acc = 0;                         
     float average_speed = 0.0f;
 
-    int   stall_cnt  = 0;               // ����������
+    int   stall_cnt  = 0;              
     bool  stalling   = false;
-    bool slip_flag[2] = {false, false};        // [0]�� [1]��
-    bool slip_active = false;                  // ��һ�ִ� �� ���� Q/R �л�
-    bool last_slip_flag[2] = {false, false};   // ����״̬���� LQR �� spin ��֧��λ��
+    bool slip_flag[2] = {false, false};        
+    bool slip_active = false;                 
+    bool last_slip_flag[2] = {false, false};   
 };
 
 inline void class_Chassis::Set_Target_X(float __Target_X)
@@ -471,65 +452,23 @@ inline float class_Chassis::Get_Velocity_filter()
 
 inline float class_Chassis::Get_average_speed() { return average_speed; }
 inline bool  class_Chassis::Get_slip_active()   { return slip_active; }
-inline float class_Chassis::Get_X_filter()
-{
-    return X_filter;
-}
+inline float class_Chassis::Get_X_filter()  {   return X_filter;    }
+inline float class_Chassis::Get_T_L()   {return T_L;}
+inline float class_Chassis::Get_Tp_L()  {return Tp_L;}
 
-inline float class_Chassis::Get_T_L()
-{
-    return T_L;
-}
+inline float class_Chassis::Get_T_R()   {return T_R;}
 
-inline float class_Chassis::Get_Tp_L()
-{
-    return Tp_L;
-}
+inline float class_Chassis::Get_Tp_R()  {return Tp_R;}
 
-inline float class_Chassis::Get_T_R()
-{
-    return T_R;
-}
+inline bool class_Chassis::Get_above_flag_l()   {return above_flag_l;}
 
-inline float class_Chassis::Get_Tp_R()
-{
-    return Tp_R;
-}
+inline bool class_Chassis::Get_above_flag_r()   {return above_flag_r;}
 
-inline bool class_Chassis::Get_above_flag_l()
-{
-    return above_flag_l;
-}
+inline float class_Chassis::Get_Heigh() {return Now_height;}
 
-inline bool class_Chassis::Get_above_flag_r()
-{
-    return above_flag_r;
-}
+inline float class_Chassis::Get_v_filter()  {return kf.x_hat(0);}
 
-inline float class_Chassis::Get_Nthetal()
-{
-    return Nthetal;
-}
-
-inline float class_Chassis::Get_Nthetar()
-{
-    return Nthetar;
-}
-
-inline float class_Chassis::Get_Heigh()
-{
-    return Now_height;
-}
-
-inline float class_Chassis::Get_v_filter()
-{
-    return kf.x_hat(0);
-}
-
-inline float class_Chassis::Get_a_filter()
-{
-    return kf.x_hat(1);
-}
+inline float class_Chassis::Get_a_filter()  {return kf.x_hat(1);}
 
 float Float_Math_Constrain(float *x, float Min, float Max);
 
