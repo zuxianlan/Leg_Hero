@@ -46,6 +46,7 @@ typedef struct
 
     float gyro[3];
     float accel[3];
+    float motionAccel_b[3]; // 机体坐标加速度
 
     RC_t RC_ctrl;
 

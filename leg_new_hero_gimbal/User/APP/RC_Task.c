@@ -871,7 +871,7 @@ void Get_fusi_shoot_flag(void)
             && (class_fusi_rc.Processed_Data.Right_Switch_Status==Fusi_Two_Stage_Switch_Status_UP_TRIG_DOWN || class_fusi_rc.Processed_Data.Right_Switch_Status==Fusi_Two_Stage_Switch_Status_DOWN_TRIG_UP) // 条件2:手动触发发弹标志
             && shoot_control.shoot_vision_control->shoot_command == SHOOT_ATTACK
             && shoot_control.heat_allow_fire_flag==1)
-            || (shoot_control.shoot_vision_control->shoot_command == SHOOT_ATTACK && shoot_control.heat_allow_fire_flag==1 && shoot_control.count > 5000)
+            || (shoot_control.shoot_vision_control->shoot_command == SHOOT_ATTACK && shoot_control.heat_allow_fire_flag==1 && shoot_control.count > 2000)
           )
         {
             shoot_control.shoot_flag = 1;

@@ -1,0 +1,7 @@
+lqr_k_calc_data.obj
+rt_nonfinite.obj
+rtGetNaN.obj
+rtGetInf.obj
+lqr_k_calc_initialize.obj
+lqr_k_calc_terminate.obj
+lqr_k_calc.obj

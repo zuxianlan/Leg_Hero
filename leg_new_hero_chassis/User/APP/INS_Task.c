@@ -241,7 +241,8 @@ void INS_Init(void)
     // pid_init(&TempCtrl, 2000, 300, 0, 1000, 20, 0, 0, 0, 0, 0, 0, 0);
     // HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
 
-    // INS.AccelLPF = 0.0085f;
+    //INS.AccelLPF = 0.0085f;
+    INS.AccelLPF = 0.0085f;
 }
 
 void INS_Task(void)

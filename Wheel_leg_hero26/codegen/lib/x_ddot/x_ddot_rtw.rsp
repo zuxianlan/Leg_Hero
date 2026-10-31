@@ -1,0 +1,7 @@
+x_ddot_data.obj
+rt_nonfinite.obj
+rtGetNaN.obj
+rtGetInf.obj
+x_ddot_initialize.obj
+x_ddot_terminate.obj
+x_ddot.obj

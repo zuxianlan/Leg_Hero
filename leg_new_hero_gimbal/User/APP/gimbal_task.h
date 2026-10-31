@@ -68,8 +68,10 @@ typedef struct {
 
 //LQR控制增益矩阵----------------------------------------------------------------
 // YAW轴LQR增益矩阵
-#define YAW_LQR_K1    9.4868//9.4868
-#define YAW_LQR_K2    0.7728//0.7135
+// #define YAW_LQR_K1   22.3607
+// #define YAW_LQR_K2   1.3352
+#define YAW_LQR_K1    24.4949
+#define YAW_LQR_K2    1.9578
 
 
 // PITCH轴LQR增益矩阵

@@ -354,6 +354,8 @@ void UART_Send_feedback_update(SEND_Message *sendMessage)
     // sendMessage->v4 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Rx_Data.Now_Torque;
     // sendMessage->v5 = gimbal_control.gimbal_yaw_j4310.dm_normal_motor.Rx_Data.Now_Omega;
     // sendMessage->v6 = gimbal_control.gimbal_vision_point->gimbal_feed_forward_yaw_accel;
-    sendMessage->v0 = shoot_control.count;
-    sendMessage->v1 = SP_vision.Rx_data.mode;
+    // sendMessage->v0 = shoot_control.count;
+    // sendMessage->v1 = SP_vision.Rx_data.mode;
+    sendMessage->v0 = shoot_control.shoot_trigger_j4310.dm_normal_motor.Rx_Data.Now_Angle;
+    sendMessage->v1 = shoot_control.fric_left_3508.C620_motor.Rx_Data.Now_Omega;
 }

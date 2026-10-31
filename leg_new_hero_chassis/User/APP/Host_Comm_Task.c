@@ -60,6 +60,9 @@ static void Host_Transmit(Host_communication_t *data)
     tmp_buff->accel[0] = BMI088.Accel[0];
     tmp_buff->accel[1] = -BMI088.Accel[1];
     tmp_buff->accel[2] = -BMI088.Accel[2];
+    tmp_buff->motionAccel_b[0] = chassis_move.chassis_INS_point->MotionAccel_b[0];
+    tmp_buff->motionAccel_b[1] = chassis_move.chassis_INS_point->MotionAccel_b[1];
+    tmp_buff->motionAccel_b[2] = chassis_move.chassis_INS_point->MotionAccel_b[2];
 
     tmp_buff->RC_ctrl.ch[1] = rc_ctrl.RC.ch[1];
     tmp_buff->RC_ctrl.ch[2] = rc_ctrl.RC.ch[2];

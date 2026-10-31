@@ -195,7 +195,7 @@ static void gimbal_init(gimbal_control_t *init)
     init->init_angle=2.4f;
 
     //设置pitch轴绝对角最大值
-    init->gimbal_pitch_j4340.max_absolute_angle = 0.55f;
+    init->gimbal_pitch_j4340.max_absolute_angle = 0.45f;
     init->gimbal_pitch_j4340.min_absolute_angle = -0.2f;
 
     // 云台数据更新
@@ -788,7 +788,7 @@ static void gimbal_motor_absolute_angle_control(gimbal_motor_t *gimbal_motor)
         {
             //LQR计算
             gimbal_motor->dm_normal_motor.Control_Torque = YAW_LQR_K1 * (gimbal_motor->dm_normal_motor.Target_Angle - gimbal_control.gimbal_INS_point->Yaw)
-                                            + YAW_LQR_K2 * ( gimbal_motor->dm_normal_motor.Feedforward_Omega - gimbal_control.gimbal_INS_point->Gyro[2]) + 0.025*gimbal_motor->dm_normal_motor.Feedforward_Accel;
+                                            + YAW_LQR_K2 * ( gimbal_motor->dm_normal_motor.Feedforward_Omega - gimbal_control.gimbal_INS_point->Gyro[2]) + 0.035*gimbal_motor->dm_normal_motor.Feedforward_Accel;
             gimbal_motor->dm_normal_motor.Control_Torque = Math_Constrain(&gimbal_motor->dm_normal_motor.Control_Torque, -8.0f, 8.0f);
         }
         else
