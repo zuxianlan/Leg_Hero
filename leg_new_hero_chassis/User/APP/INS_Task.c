@@ -13,7 +13,7 @@
 //   *********************************************************************
 //   */
 //
-// #include "ins_task.h"
+// #include "INS_Task.h"
 // #include "controller.h"
 // #include "mahony_filter.h"
 //
@@ -195,7 +195,7 @@
   *********************************************************************
   */
 
-#include "ins_task.h"
+#include "INS_Task.h"
 #include "controller.h"
 #include "QuaternionEKF.h"
 #include "bsp_PWM.h"

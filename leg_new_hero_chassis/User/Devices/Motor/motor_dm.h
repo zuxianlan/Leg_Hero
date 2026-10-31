@@ -16,8 +16,8 @@
 #include "Mathh.h"
 #include "arm_math.h"
 #include "fdcan.h"
-#include "PID_Control.h"
-#include "INS_task.h"
+#include "PID_control.h"
+#include "INS_Task.h"
 #include "remote_control.h"
 
 #define MOTOR_ECD_TO_RAD 0.000766990394f //      2*  PI  /8192

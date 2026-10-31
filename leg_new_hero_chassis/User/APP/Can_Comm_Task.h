@@ -10,7 +10,7 @@
 #ifndef CTRLBOARD_H7_IMU_CAN_COMM_TASK_H
 #define CTRLBOARD_H7_IMU_CAN_COMM_TASK_H
 /* Includes ------------------------------------------------------------------*/
-#include "can_comm.h"
+#include "CAN_comm.h"
 /* Define --------------------------------------------------------------------*/
 //can通信任务初始化时间 单位ms
 #define CAN_COMM_TASK_INIT_TIME 2000

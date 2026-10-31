@@ -10,7 +10,7 @@
   */
 
 #include "main.h"
-#include "Vofa.h"
+#include "vofa.h"
 #include "stdarg.h"
 #include "stdio.h"
 #include "string.h"

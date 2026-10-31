@@ -1,7 +1,7 @@
 #此文件从模板自动生成! 请勿更改!
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.22)
 
 # specify cross-compilers and tools
 set(CMAKE_C_COMPILER arm-none-eabi-gcc)
@@ -110,7 +110,7 @@ add_link_options(-mcpu=cortex-m7 -mthumb -mthumb-interwork)
 
 
 
-link_directories(${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib)
+link_directories(${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/lib)
 
 # User link_directories END
 

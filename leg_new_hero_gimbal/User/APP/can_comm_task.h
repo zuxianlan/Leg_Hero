@@ -5,7 +5,7 @@
 #ifndef CAN_COMM_TASK_H
 #define CAN_COMM_TASK_H
 
-#include "can_comm.h"
+#include "CAN_comm.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"

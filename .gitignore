@@ -69,3 +69,7 @@ $RECYCLE.BIN/
 # ---------- 注意 ----------
 # Middlewares/ST/ARM/DSP/Lib/*.a 是 CMake 链接所必需的静态库，
 # 因此这里刻意不忽略 *.a，请勿添加该规则。
+
+# ---------- CMake toolchain files (required for building) ----------
+!**/cmake/*.cmake
+!**/cmake/**/*.cmake

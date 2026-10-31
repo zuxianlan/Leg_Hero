@@ -11,8 +11,8 @@
 #include "task.h"
 
 
-#include "PID_Control.h"
-#include "ins_task.h"
+#include "PID_control.h"
+#include "INS_task.h"
 #include "motor_dm.h"
 #include "motor_dji.h"
 #include "vision_task.h"
