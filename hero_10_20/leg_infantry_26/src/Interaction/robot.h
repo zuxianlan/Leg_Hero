@@ -16,7 +16,7 @@
 #include "Algorithm/Slope/slope.h"
 #include "Devices/dm_mc02.h"
 #include "Devices/Vofa_TCP.h"
-#include "chassis/Chassis.h"
+#include "Chassis.h"
 #include "Devices/INS.h"
 #include "GamePad.h"
 #include "Algorithm/Fusion_AHRS/Fusion_AHRS.h"

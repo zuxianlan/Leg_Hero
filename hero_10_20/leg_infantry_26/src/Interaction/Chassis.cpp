@@ -77,10 +77,6 @@ void class_Chassis::Init()
 
     PID_tp_omega.Init(1.5f, 0.0f, 0.0f, 0.00f, 0.0f, 10.0f, 0.002f, 0.0f, 0.0f, 0.0f, 0.0f, PID_D_First_ENABLE);
 
-    PID_roll.Init(80.6f, 0.00f, 0.001f, 0.0f, 0.0f, 200.5f, 0.002f, 0.0f, 0.0f, 0.0f, 0.0f, PID_D_First_ENABLE);
-
-    PID_roll_omega.Init(8.5f, 0.0f, 0.00f, 0.0f, 0.0f, 350.5f, 0.002f, 0.0f, 0.0f, 0.0f, 0.0f, PID_D_First_ENABLE);
-
     /******************* kf *******************/
     // kf.x_hat << 0.0, 0.0;
     // kf.StateMinVariance << 0.03, 0.03;
@@ -95,61 +91,55 @@ void class_Chassis::Init()
     // kf.R << 100.0, 0.0,
     //         0.0, 100.0;
 
-    kf.x_hat << 0.0, 0.0;
-    // ★★ 关键：原为 {0.03, 0.03}，会让 P(0,0) 永远收不紧，
-    //    导致"打滑时 P 被压到底"这个机制失效 → 速度状态持续抖动
-    kf.StateMinVariance << 0.0001f, 0.0300f;
+    // kf.x_hat << 0.0, 0.0;
+    // // ★★ 关键：原为 {0.03, 0.03}，会让 P(0,0) 永远收不紧，
+    // //    导致"打滑时 P 被压到底"这个机制失效 → 速度状态持续抖动
+    // kf.StateMinVariance << 0.0001f, 0.0300f;
 
-    kf.P << 1.0, 0.0,
-            0.0, 1.0;
-    kf.F << 1.0, 0.001,      // ← dt = 1ms，与 TIM_1ms 回调一致（勿改！）
-            0.0, 1.0;
-    kf.H << 1.0, 0.0,        // 直测 [v, a]，H 为单位阵
-            0.0, 1.0;
-    kf.Q <<   1.0f,    0.0f, // 与 Self_Observe 正常态一致
-              0.0f, 2000.0f;
-    kf.R << 100.0f,    0.0f,
-              0.0f,    1.0f;
+    // kf.P << 1.0, 0.0,
+    //         0.0, 1.0;
+    // kf.F << 1.0, 0.001,      // ← dt = 1ms，与 TIM_1ms 回调一致（勿改！）
+    //         0.0, 1.0;
+    // kf.H << 1.0, 0.0,        // 直测 [v, a]，H 为单位阵
+    //         0.0, 1.0;
+    // kf.Q <<   1.0f,    0.0f, // 与 Self_Observe 正常态一致
+    //           0.0f, 2000.0f;
+    // kf.R << 100.0f,    0.0f,
+    //           0.0f,    1.0f;
+    kf.KF_Init();
 
     /******************* mpc *******************/
-    MPC_body.u_min << -150, -150;
-    MPC_body.u_max << 150, 150;
-    MPC_body.x_min << -M_PI / 4.0f, -0.5, 0.1, -1.0;
-    MPC_body.x_max << M_PI / 4.0f, 0.5, 0.38, 1.0;
-    MPC_body.Q << 1.5e7,0,0,0,
-                  0,1e3,0,0,
-                  0,0,1.5e7,0,
-                  0,0,0,1e3;
+    MPC_body.MPC_Init();
+    // MPC_body.u_min << -150, -150;
+    // MPC_body.u_max << 150, 150;
+    // MPC_body.x_min << -M_PI / 4.0f, -0.5, 0.1, -1.0;
+    // MPC_body.x_max << M_PI / 4.0f, 0.5, 0.38, 1.0;
+    // MPC_body.Q << 1.5e7,0,0,0,
+    //               0,1e3,0,0,
+    //               0,0,1.5e7,0,
+    //               0,0,0,1e3;
 
-    MPC_body.F << 1.5e8,0,0,0,
-                  0,1e4,0,0,
-                  0,0,1.5e8,0,
-                  0,0,0,1e4;
+    // MPC_body.F << 1.5e8,0,0,0,
+    //               0,1e4,0,0,
+    //               0,0,1.5e8,0,
+    //               0,0,0,1e4;
 
-    MPC_body.R << 0.9,0,
-                  0,0.9;            
+    // MPC_body.R << 0.9,0,
+    //               0,0.9;            
 
-    MPC_body.A << 1,dt_mpc,0,0,
-                  0,1,0,0,
-                  0,0,1,dt_mpc,
-                  0,0,0,1-(dt_mpc*b/m);
+    // MPC_body.A << 1,dt_mpc,0,0,
+    //               0,1,0,0,
+    //               0,0,1,dt_mpc,
+    //               0,0,0,1-(dt_mpc*b/m);
 
-    MPC_body.B << 0,0,
-                  -(r*dt_mpc/I_r), r*dt_mpc/I_r,
-                  0,0,
-                  dt_mpc/m, dt_mpc/m;
+    // MPC_body.B << 0,0,
+    //               -(r*dt_mpc/I_r), r*dt_mpc/I_r,
+    //               0,0,
+    //               dt_mpc/m, dt_mpc/m;
 
-    MPC_body.BuildPredictionMatrices();
-    MPC_body.BuildHessianMatrices();
+    // MPC_body.BuildPredictionMatrices();
+    // MPC_body.BuildHessianMatrices();
 
-
-    for(int i=0; i<2; i++)
-    {
-        Motor_Wheel[i].Power_K_0 = 0.2962f;
-        Motor_Wheel[i].Power_K_1 = .0005f;
-        Motor_Wheel[i].Power_K_2 = 0.1519f;
-        Motor_Wheel[i].Power_A = 1.3544f;
-    }
 }
 
 /*
@@ -161,12 +151,6 @@ void class_Chassis::feedback_update()
     normalizeAngle(&mc_02->Rx_Data.Motor_joint[1].Position);
     normalizeAngle(&mc_02->Rx_Data.Motor_joint[2].Position);
     normalizeAngle(&mc_02->Rx_Data.Motor_joint[3].Position);
-
-    theta_err = left_leg.Get_theta() - right_leg.Get_theta();
-    dtheta_err = left_leg.Get_dtheta() - right_leg.Get_dtheta();
-
-    pitch_l = -(INS->pitch - Target_Pitch);
-    d_pitch_l = -INS->gyro[0];
 
     left_leg.Set_phi1(static_cast<float>(std::numbers::pi) + mc_02->Rx_Data.Motor_joint[1].Position);
     left_leg.Set_dphi1(mc_02->Rx_Data.Motor_joint[1].omega);
@@ -180,6 +164,10 @@ void class_Chassis::feedback_update()
     right_leg.Set_dphi4(-mc_02->Rx_Data.Motor_joint[3].omega);
     right_leg.VMC_Calc_1();
 
+    theta_err = left_leg.Get_theta() - right_leg.Get_theta();
+    dtheta_err = left_leg.Get_dtheta() - right_leg.Get_dtheta();
+    // pitch_l = -(INS->pitch - Target_Pitch);
+    // d_pitch_l = -INS->gyro[0];
     // ========== 当前身体高度与高度变化率（考虑roll角补偿） ==========
     Now_height = (left_leg.Get_L0() * cosf(INS->roll) + right_leg.Get_L0() * cosf(INS->roll)) / 2;
     Now_dheight = (left_leg.Get_dL0() * cosf(INS->roll) + right_leg.Get_dL0() * cosf(INS->roll)) / 2;
@@ -208,14 +196,14 @@ void class_Chassis::Zero_Force_Control()
     left_leg.VMC_Calc_1();
     left_leg.VMC_Calc_2();
     T_L = 0;
-    T_L_limit = 0;
+    //T_L_limit = 0;
     Tp_L = 0;
     right_leg.Set_Tp(0);
     right_leg.Set_F0(0);
     right_leg.VMC_Calc_1();
     right_leg.VMC_Calc_2();
     T_R = 0;
-    T_R_limit = 0;
+    //T_R_limit = 0;
     Tp_R = 0;
 
     X_filter = 0;
@@ -234,19 +222,6 @@ void class_Chassis::Follow_Gimbal_Control()
     PID_tp_omega.TIM_Calculate_PeriodElapsedCallback();
 
     MPC_Body_Calc();
-
-    /******************* left_leg *******************/
-
-    float LQR_Tmp[14] = {0.0f};
-    lqr_k_calc(left_leg.Get_L0(), LQR_Tmp);
-
-    for (int i = 0; i < 6; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {
-            LQR_K_L[j][i] = LQR_Tmp[i*2 + j];
-        }
-    }
 
     if (chassis_fsm_mode == ABOVE_GROUND)
     {
@@ -612,7 +587,6 @@ void class_Chassis::UP_Staris_Control_leg()
 void class_Chassis::Self_Observe()
 {
     static float omega_l, omega_r = 0.0f;
-    static float speed_l, speed_r = 0.0f;
 
     omega_l = mc_02->Rx_Data.Motor_wheel[0].omega - INS->gyro[0] + left_leg.Get_dtheta();
     v_wheel_l = -(0.06 * omega_l + left_leg.Get_L0() * left_leg.Get_dtheta() * cosf(left_leg.Get_theta()) + left_leg.Get_dL0() * sinf(left_leg.Get_theta()));
@@ -622,38 +596,47 @@ void class_Chassis::Self_Observe()
 
     Slip_Detection_And_Suppression();
 
-   if (spin_mode)              // ★ 小陀螺优先：优先于打滑，语义更清晰
-    {
-        kf.Q <<   1.f,    0.0f,
-                0.0f,    1.0f;
-        kf.R << 100.0f,    0.0f,
-                0.0f, 8000.0f;
-        kf.z << average_speed,
-                INS->MotionAccel_b[1];
-    }
-    else if (slip_active)
-    {
-        kf.Q <<    0.1f,  0.0f,
-                0.0f, 4000.0f;
-        kf.R << 9000.0f,   0.0f,
-                0.0f,  100.0f;
-        kf.z << kf.x_hat(0),
-                INS->MotionAccel_b[1];
-    }
-    else
-    {
-        kf.Q <<   1.f,    0.0f,
-                0.0f, 2000.0f;
-        kf.R << 100.0f,    0.0f,
-                0.0f,    1.0f;
-        kf.z << average_speed,
-                INS->MotionAccel_b[1];
-    }
+//    if (spin_mode)              // ★ 小陀螺优先：优先于打滑，语义更清晰
+//     {
+//         kf.Q <<   1.f,    0.0f,
+//                 0.0f,    1.0f;
+//         kf.R << 100.0f,    0.0f,
+//                 0.0f, 8000.0f;
+//         kf.z << average_speed,
+//                 INS->MotionAccel_b[1];
+//     }
+//     else if (slip_active)
+//     {
+//         kf.Q <<    0.1f,  0.0f,
+//                 0.0f, 4000.0f;
+//         kf.R << 9000.0f,   0.0f,
+//                 0.0f,  100.0f;
+//         kf.z << kf.x_hat(0),
+//                 INS->MotionAccel_b[1];
+//     }
+//     else
+//     {
+//         kf.Q <<   1.f,    0.0f,
+//                 0.0f, 2000.0f;
+//         kf.R << 100.0f,    0.0f,
+//                 0.0f,    1.0f;
+//         kf.z << average_speed,
+//                 INS->MotionAccel_b[1];
+//     }
+//     kf.Predict();
+//     kf.Update();
+
+//     Velocity_filter = kf.x_hat(0);
+    KF_Mode mode = KF_Mode::Normal;
+    if (spin_mode)        mode = KF_Mode::Spin;
+    else if (slip_active) mode = KF_Mode::Slip;
+
+    kf.Set_Mode(mode);
+    kf.Set_Z(mode == KF_Mode::Slip ? kf.x_hat(0) : average_speed,INS->MotionAccel_b[1]); //打滑时，使用KF估计速度x_hat(0)
     kf.Predict();
     kf.Update();
 
     Velocity_filter = kf.x_hat(0);
-   
     X_filter = X_filter + Velocity_filter * (static_cast<float>(1)/1000.0f);
 
 }

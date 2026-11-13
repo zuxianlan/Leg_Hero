@@ -66,18 +66,6 @@ typedef enum
 
 /* Function ------------------------------------------------------------------*/
 
-typedef struct
-{
-    float Power_Factor; 
-    float Power_Estimate; 
-    float Power_K_0; 
-    float Power_K_1;
-    float Power_K_2;
-    float Power_A;
-    float Target_Current;
-    float Now_Omega;
-}motor_power;
-
 class class_Chassis
 {
 public:
@@ -92,25 +80,22 @@ public:
     Class_PID PID_Omega;
     Class_PID PID_tp;
     Class_PID PID_tp_omega;
-    Class_PID PID_roll;
-    Class_PID PID_roll_omega;
 
     MPC_Controller MPC_body = MPC_Controller(4, 2, 0, N);
 
-    Class_LESO LESO_left = Class_LESO(6, 2, 6, 2, 0.002f);  
-    Class_LESO LESO_right = Class_LESO(6, 2, 6, 2, 0.002f);  
+    // Class_LESO LESO_left = Class_LESO(6, 2, 6, 2, 0.002f);  
+    // Class_LESO LESO_right = Class_LESO(6, 2, 6, 2, 0.002f);  
 
     Enum_chassis_fsm_mode chassis_fsm_mode;
     Enum_up_staris_fsm_mode chassis_up_fsm_mode;
 
-    motor_power Motor_Wheel[2];
-    float k1 = 1, k2 = 1;
-    int above_zero_force = 1;
+    //float k1 = 1, k2 = 1;
+    //int above_zero_force = 1;
 
     float current_ref_height = 0;
     float current_ref_dheight = 0;
 
-    float LESO_dhat[4];
+    //float LESO_dhat[4];
 
     void Init();
     void feedback_update();
@@ -170,33 +155,30 @@ public:
 private:
     KalmanFilter kf = KalmanFilter(2,2,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
-    Eigen::VectorXf z0 = Eigen::VectorXf::Zero(6+2);
-    Eigen::VectorXf u_left = Eigen::VectorXf::Zero(2);
-    Eigen::VectorXf y_left = Eigen::VectorXf::Zero(6);
-    Eigen::VectorXf u_right = Eigen::VectorXf::Zero(2);
-    Eigen::VectorXf y_right = Eigen::VectorXf::Zero(6);
-    Eigen::VectorXf d_hat_left = Eigen::VectorXf::Zero(2);
-    Eigen::VectorXf d_hat_right = Eigen::VectorXf::Zero(2);
-    Eigen::VectorXf last_d_hat_left = Eigen::VectorXf::Zero(2);
-    Eigen::VectorXf last_d_hat_right = Eigen::VectorXf::Zero(2);
-    Eigen::MatrixXf Ae = Eigen::MatrixXf::Zero(8,8);
-    Eigen::MatrixXf Be = Eigen::MatrixXf::Zero(8,2);
-    Eigen::MatrixXf Ce = Eigen::MatrixXf::Zero(6,8);
-    Eigen::MatrixXf A = Eigen::MatrixXf::Zero(6,6);
-    Eigen::MatrixXf B = Eigen::MatrixXf::Zero(6,2);
-    Eigen::MatrixXf L_Gein = Eigen::MatrixXf::Zero(8,6);
+    // Eigen::VectorXf z0 = Eigen::VectorXf::Zero(6+2);
+    // Eigen::VectorXf u_left = Eigen::VectorXf::Zero(2);
+    // Eigen::VectorXf y_left = Eigen::VectorXf::Zero(6);
+    // Eigen::VectorXf u_right = Eigen::VectorXf::Zero(2);
+    // Eigen::VectorXf y_right = Eigen::VectorXf::Zero(6);
+    // Eigen::VectorXf d_hat_left = Eigen::VectorXf::Zero(2);
+    // Eigen::VectorXf d_hat_right = Eigen::VectorXf::Zero(2);
+    // Eigen::VectorXf last_d_hat_left = Eigen::VectorXf::Zero(2);
+    // Eigen::VectorXf last_d_hat_right = Eigen::VectorXf::Zero(2);
+    // Eigen::MatrixXf Ae = Eigen::MatrixXf::Zero(8,8);
+    // Eigen::MatrixXf Be = Eigen::MatrixXf::Zero(8,2);
+    // Eigen::MatrixXf Ce = Eigen::MatrixXf::Zero(6,8);
+    // Eigen::MatrixXf A = Eigen::MatrixXf::Zero(6,6);
+    // Eigen::MatrixXf B = Eigen::MatrixXf::Zero(6,2);
+    // Eigen::MatrixXf L_Gein = Eigen::MatrixXf::Zero(8,6);
 
-
-    float LQR_K_L[2][6] = {};
-    float LQR_K_R[2][6] = {};
     float Fitting_K[4][10] = {};
     float err[10] = {};
 
-    float I_r = 1.5;
-    float r = 0.16;
-    float m = 25.0;
-    float k = 0;
-    float b = -1000;
+    // float I_r = 1.5;
+    // float r = 0.16;
+    // float m = 25.0;
+    // float k = 0;
+    // float b = -1000;
 
     float spring_forcel = 0;
     float spring_forcer = 0;
@@ -226,8 +208,8 @@ private:
     float Velocity_filter = 0; 
     float X_filter = 0; 
 
-    float pitch_r = 0;
-    float d_pitch_r = 0;
+    // float pitch_r = 0;
+    // float d_pitch_r = 0;
     float pitch_l = 0;
     float d_pitch_l = 0;
     float total_yaw = 0;
@@ -240,14 +222,14 @@ private:
 
     float T[4] = {};
     float T_L = 0, T_R = 0;
-    float T_L_M = 0, T_R_M = 0;
-    float T_L_Speed = 0, T_R_Speed = 0;
+    //float T_L_M = 0, T_R_M = 0;
+    //float T_L_Speed = 0, T_R_Speed = 0;
     float Tp_L = 0, Tp_R = 0;
-    float T_L_YAW = 0, T_R_YAW = 0;
-    float T_L_limit = 0, T_R_limit = 0;
+    // float T_L_YAW = 0, T_R_YAW = 0;
+    // float T_L_limit = 0, T_R_limit = 0;
 
-    float Nthetal = 0;
-    float Nthetar = 0;
+    // float Nthetal = 0;
+    // float Nthetar = 0;
     float M = 50;
     float Jump_force = 0;
     float F_mc = 0;
@@ -258,11 +240,11 @@ private:
     bool last_stop_flag = true;
     bool spin_mode = false;
 
-    float Wheel_Factor = 0.0f;
+    //float Wheel_Factor = 0.0f;
     float last_Target_height = 0.0f;
 
-    float lambda1 = -0.0;
-    float lambda2 = -0.0;
+    // float lambda1 = -0.0;
+    // float lambda2 = -0.0;
 
 
     float dt = 0.002;

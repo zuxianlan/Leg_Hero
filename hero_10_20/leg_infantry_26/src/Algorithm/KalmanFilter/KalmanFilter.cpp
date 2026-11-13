@@ -22,7 +22,9 @@
 
 using namespace Eigen;
 
-// ¹¹Ôìº¯Êı
+/**
+* @brief æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–å¡å°”æ›¼æ»¤æ³¢å™¨å„çŸ©é˜µä¸ºé€‚å½“ç»´åº¦ï¼Œå¹¶æ³¨å†Œç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°
+*/
 KalmanFilter::KalmanFilter(int StateDim, int MeasureDim, int ControlDim = 0, UserFunction UserFunc1 = nullptr,
                            UserFunction UserFunc2 = nullptr, UserFunction UserFunc3 = nullptr,
                            UserFunction UserFunc4 = nullptr,
@@ -33,7 +35,6 @@ KalmanFilter::KalmanFilter(int StateDim, int MeasureDim, int ControlDim = 0, Use
                                                                UserFunc3(UserFunc3), UserFunc4(UserFunc4),
                                                                UserFunc5(UserFunc5)
 {
-    // ³õÊ¼»¯¾ØÕó
     F = MatrixXf::Identity(StateDim, StateDim);
     H = MatrixXf::Zero(MeasureDim, StateDim);
     Q = MatrixXf::Zero(StateDim, StateDim);
@@ -58,108 +59,85 @@ KalmanFilter::KalmanFilter(int StateDim, int MeasureDim, int ControlDim = 0, Use
 }
 
 /**
-* @brief ³õÊ¼»¯£¬Éè¶¨³õÊ¼Öµ
-*
-* @param x0 ³õÊ¼¹Û²âÏòÁ¿
-* @param p0 ³õÊ¼Îó²îĞ­·½²î¾ØÕó
-* @return
+* @brief 2çŠ¶æ€åº•ç›˜é€Ÿåº¦å¡å°”æ›¼æ»¤æ³¢å™¨çš„ä¸“ç”¨åˆå§‹åŒ–ï¼Œè®¾ç½®çŠ¶æ€åˆå€¼ã€åæ–¹å·®åŠç³»ç»ŸçŸ©é˜µï¼Œä»…å½“StateDim=2ä¸”MeasureDim=2æ—¶æœ‰æ•ˆ
 */
-void KalmanFilter::Init(const VectorXf& x0, const MatrixXf& p0)
+void KalmanFilter::KF_Init()
 {
-    x_hat = x0;
-    P = p0;
+    if (StateDim != 2 || MeasureDim != 2)
+    {
+        std::cerr << "KF_Init: only supports 2-state/2-measure KF" << std::endl;
+        return;
+    }
+
+    x_hat << 0.0f, 0.0f;
+    StateMinVariance << 0.0001f, 0.0300f;
+
+    P << 1.0f, 0.0f,
+         0.0f, 1.0f;
+
+    // dt = 1ms
+    F << 1.0f, 0.001f,
+         0.0f, 1.0f;
+
+    H << 1.0f, 0.0f,
+         0.0f, 1.0f;
+
+    Set_Mode(KF_Mode::Normal);
 }
 
 /**
-* @brief Éè¶¨ÏµÍ³Ä£ĞÍ¾ØÕó
-*
-* @param F_ ×´Ì¬×ªÒÆ¾ØÕó
-* @param H_ ¹Û²â¾ØÕó
-* @param Q_ ¹ı³ÌÔëÉù¾ØÕó
-* @param R_ ²âÁ¿ÔëÉù¾ØÕó
-* @return
+* @brief åŠ¨æ€åˆ‡æ¢æ»¤æ³¢å™¨å·¥ä½œæ¨¡å¼ï¼Œæ ¹æ®ä¸åŒæ¨¡å¼è‡ªåŠ¨è®¾ç½®å¯¹åº”çš„Q/Rå™ªå£°çŸ©é˜µå‚æ•°
+* @param mode æ»¤æ³¢å™¨å·¥ä½œæ¨¡å¼ï¼ˆNormal:æ­£å¸¸ / Slip:æ‰“æ»‘ / Spin:å°é™€èºï¼‰
 */
-void KalmanFilter::SetModel(const MatrixXf& F_, const MatrixXf& H_, const MatrixXf& Q_, const MatrixXf& R_)
+void KalmanFilter::Set_Mode(KF_Mode mode)
 {
-    this->F = F_;
-    this->H = H_;
-    this->Q = Q_;
-    this->R = R_;
+    if (StateDim != 2 || MeasureDim != 2) return;   //ç»´åº¦ä¸æ˜¯2ç›´æ¥è¿”å›
+    switch (mode)
+    {
+    case KF_Mode::Normal:
+        Q << 1.0f, 0.0f,
+             0.0f, 2000.0f;
+
+        R << 100.0f, 0.0f,
+             0.0f, 1.0f;
+        break;
+
+    case KF_Mode::Slip:
+        Q << 0.1f, 0.0f,
+             0.0f, 4000.0f;
+
+        R << 9000.0f, 0.0f,
+             0.0f, 100.0f;
+        break;
+
+    case KF_Mode::Spin:
+        Q << 1.0f, 0.0f,
+             0.0f, 1.0f;
+
+        R << 100.0f, 0.0f,
+             0.0f, 8000.0f;
+        break;
+    }
 }
 
 /**
-* @brief Éè¶¨¿ØÖÆ¾ØÕóB
-*
-* @param
-* @return
+* @brief ç›´æ¥è®¾ç½®2ç»´æµ‹é‡å‘é‡z = [é€Ÿåº¦, åŠ é€Ÿåº¦]
+* @param v é€Ÿåº¦æµ‹é‡å€¼
+* @param a åŠ é€Ÿåº¦æµ‹é‡å€¼
 */
-void KalmanFilter::SetControlB(const MatrixXf& B_)
+void KalmanFilter::Set_Z(float v, float a)
 {
-    this->B = B_;
-}
-
-void KalmanFilter::Set_F(const MatrixXf& F_)
-{
-    this->F = F_;
-}
-
-void KalmanFilter::Set_H(const MatrixXf& H_)
-{
-    this->H = H_;
-}
-
-void KalmanFilter::Set_P(const MatrixXf& P_)
-{
-    this->P = P_;
-}
-
-void KalmanFilter::Set_x_hat_p(const VectorXf& x_hat_p_)
-{
-    this->x_hat_p = x_hat_p_;
+    if (z.size() != 2) return;
+    z << v, a;
 }
 
 /**
-* @brief Éè¶¨×îĞ¡Ğ­·½²î£¬·ÀÖ¹¹ı¶ÈÊÕÁ²
-*
-* @param
-* @return
-*/
-void KalmanFilter::SetStateMinVariance(const VectorXf& M_)
-{
-    this->StateMinVariance = M_;
-}
-
-/**
-* @brief Éè¶¨²âÁ¿Á¿
-*
-* @param
-* @return
-*/
-void KalmanFilter::Set_Z(const VectorXf& z_)
-{
-    this->z = z_;
-}
-
-/**
-* @brief Éè¶¨·ÇÏßĞÔ²âÁ¿Á¿
-*
-* @param
-* @return
-*/
-void KalmanFilter::Set_Z_nl(const VectorXf& z_nl_)
-{
-    this->z_nl = z_nl_;
-}
-
-/**
-* @brief Ô¤²â£¬¿¨¶ûÂüÂË²¨»Æ½ğÎåÊ½µÄÇ°Á½Ê½
-*
-* @param u µ±ÓĞ¿ØÖÆÁ¿µÄÊ±ºòÊäÈë£¬ÎŞ¿ØÖÆÁ¿µÄÊ±ºòÎª¿Õ
-* @return
+* @brief å¡å°”æ›¼æ»¤æ³¢é¢„æµ‹æ­¥éª¤ï¼šè®¡ç®—å…ˆéªŒçŠ¶æ€ä¼°è®¡x_hat_på’Œå…ˆéªŒåæ–¹å·®çŸ©é˜µP_pï¼Œå¹¶ä¾æ¬¡è°ƒç”¨ç”¨æˆ·å›è°ƒå‡½æ•°1å’Œ2
+* @param u æ§åˆ¶è¾“å…¥å‘é‡ï¼ˆå¯é€‰ï¼Œä»…å½“ControlDim>0ä¸”uéç©ºæ—¶å‚ä¸è®¡ç®—ï¼‰
 */
 void KalmanFilter::Predict(const VectorXf& u)
 {
-    // ÏÈÑé 1. X_k = F * X_k-1 + B * U_k-1
+    // 1. X_k = F * X_k-1 + B * U_k-1
     if (u.size() > 0 && ControlDim > 0)
     {
         x_hat_p = F * x_hat + B * u;
@@ -174,7 +152,7 @@ void KalmanFilter::Predict(const VectorXf& u)
         UserFunc1();
     }
 
-    // 2. ÏÈÑéÎó²îĞ­·½²î P_kp = F * P_k-1 * F^T + Q
+    // 2. P_kp = F * P_k-1 * F^T + Q
     P_p = F * P * F.transpose() + Q;
 
     if (UserFunc2 != nullptr)
@@ -184,10 +162,7 @@ void KalmanFilter::Predict(const VectorXf& u)
 }
 
 /**
-* @brief Ğ£Ñé£¬¸üĞÂ ¿¨¶ûÂüÂË²¨»Æ½ğÎåÊ½ºóÈıÊ½
-*
-* @param
-* @return
+* @brief å¡å°”æ›¼æ»¤æ³¢æ›´æ–°æ­¥éª¤ï¼šè®¡ç®—å¡å°”æ›¼å¢ç›ŠKï¼Œæ›´æ–°åéªŒçŠ¶æ€ä¼°è®¡x_hatå’ŒåéªŒåæ–¹å·®çŸ©é˜µPï¼Œå¹¶å¯¹åæ–¹å·®å¯¹è§’çº¿è¿›è¡Œä¸‹ç•Œçº¦æŸ
 */
 void KalmanFilter::Update()
 {
@@ -196,7 +171,7 @@ void KalmanFilter::Update()
         UserFunc3();
     }
 
-    // 3. ¸üĞÂ¼ÆËã¿¨¶ûÂüÔöÒæK K = (P_kp * H^T) / (H * P_kp * H^T + R)
+    // 3.K = (P_kp * H^T) / (H * P_kp * H^T + R)
     K = (P_p * H.transpose()) * (H * P_p * H.transpose() + R).inverse();
 
     if (UserFunc4 != nullptr)
@@ -211,13 +186,12 @@ void KalmanFilter::Update()
         UserFunc5();
     }
 
-    // 4. ºóÑé¹À¼Æ X_hat = X_hat_p + K * (Z - H * X_hat_p)
+    // 4.X_hat = X_hat_p + K * (Z - H * X_hat_p)
     x_hat = x_hat_p + x_k_out;
 
-    // 5. Îó²îĞ­·½²î¾ØÕó¸üĞÂ P = (I - K * H) * P_p
+    // 5.P = (I - K * H) * P_p
     P = (I - K * H) * P_p;
 
-    // ±ÜÃâÂË²¨Æ÷¹ı¶ÈÊÕÁ²
     for (int i = 0; i < StateDim; i++)
     {
         if (P(i, i) < StateMinVariance(i))
@@ -225,94 +199,4 @@ void KalmanFilter::Update()
             P(i, i) = StateMinVariance(i);
         }
     }
-}
-
-/**
- * @brief ´«³öÏÈÑé¹À¼ÆÖµ
- *
- * @param
- * @return x_hat_p ÏÈÑé¹À¼ÆÏòÁ¿
- */
-VectorXf KalmanFilter::get_p_output()
-{
-    return x_hat_p;
-}
-
-/**
- * @brief ´«³öºóÑé¹À¼ÆÖµ
- *
- * @param
- * @return x_hat ºóÑé¹À¼ÆÏòÁ¿
- */
-VectorXf KalmanFilter::get_output()
-{
-    return x_hat;
-}
-
-/**
-* @brief ´«³öÔöÒæ³ËºóµÄÖµ£¬¼´K * (Z - H * X_hat_p)
-*
-* @param
-* @return x_hat ºóÑé¹À¼ÆÏòÁ¿
-*/
-VectorXf KalmanFilter::get_xk_out()
-{
-    x_k_out = x_hat;
-    return x_hat;
-}
-
-VectorXf KalmanFilter::get_P()
-{
-    return P;
-}
-
-/**
-* @brief ¸ù¾İ´«¸ĞÆ÷ÊÇ·ñÔÚÏß¶¯Ì¬µ÷ÕûH K R¾ØÕóµÄÖµ¿ÉÑ¡ÔñÊÇ·ñ¿ªÆôµ÷Õû
-*
-* @param
-* @return
-*/
-void KalmanFilter::H_K_R_Adjustment()
-{
-    MatrixXf tempH = MatrixXf::Zero(H.rows(), H.cols());
-    MatrixXf tempR = MatrixXf::Zero(R.rows(), R.cols());
-    VectorXf tempz = VectorXf::Zero(H.rows());
-    uint8_t j = 0;
-
-    for (int i = 0; i < H.rows(); i++)
-    {
-        if (z(i) != 0)
-        {
-            for (int k = 0; k < H.cols(); k++)
-            {
-                tempH(i - j, k) = H(i, k);
-            }
-            for (int k = 0; k < R.cols(); k++)
-            {
-                tempR(i - j, k) = R(i, k);
-            }
-            tempz(i - j) = z(i);
-        }
-        else
-        {
-            j++;
-        }
-    }
-
-    tempH.conservativeResize(H.rows() - j, H.cols());
-    tempR.conservativeResize(R.rows() - j, R.cols());
-    tempz.conservativeResize(H.rows() - j);
-
-    H.setZero();
-    H.conservativeResize(tempH.rows() - j, tempH.cols());
-    R.setZero();
-    R.conservativeResize(R.rows() - j, R.cols());
-    z.setZero();
-    z.conservativeResize(H.rows() - j);
-
-    H = tempH;
-    R = tempR;
-    z = tempz;
-
-    K.conservativeResize(H.cols(), R.rows() - j);
 }

@@ -32,6 +32,7 @@ Makefile
 # 说明：.project / .cproject / .mxproject / .ioc 是 STM32CubeIDE 工程文件，必须保留
 .idea/
 .vs/
+.marscode/
 .settings/
 .vscode/ipch/
 *.user

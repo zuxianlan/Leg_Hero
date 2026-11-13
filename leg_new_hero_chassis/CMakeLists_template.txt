@@ -103,7 +103,7 @@ add_link_options(-mcpu=cortex-m7 -mthumb -mthumb-interwork)
 
 # User link_directories BEGIN
 
-link_directories(${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib)
+link_directories(${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/lib)
 
 # User link_directories END
 

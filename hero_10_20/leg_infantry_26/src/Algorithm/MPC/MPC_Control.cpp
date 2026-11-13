@@ -11,6 +11,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "MPC_Control.h"
 #include <iostream>
+#include <numbers>
 
 /* Define --------------------------------------------------------------------*/
 
@@ -25,6 +26,46 @@
 using namespace Eigen;
 using namespace qpOASES;
 
+void MPC_Controller::MPC_Init()
+{
+    //constexpr double kPi = std::numbers::pi;
+
+    u_min << -150.0, -150.0;
+    u_max <<  150.0,  150.0;
+
+    x_min << -std::numbers::pi / 4.0, -0.5, 0.1, -1.0;
+    x_max <<  std::numbers::pi / 4.0,  0.5, 0.38, 1.0;
+
+    Q << 1.5e7, 0.0, 0.0, 0.0,
+         0.0, 1.0e3, 0.0, 0.0,
+         0.0, 0.0, 1.5e7, 0.0,
+         0.0, 0.0, 0.0, 1.0e3;
+
+    F << 1.5e8, 0.0, 0.0, 0.0,
+         0.0, 1.0e4, 0.0, 0.0,
+         0.0, 0.0, 1.5e8, 0.0,
+         0.0, 0.0, 0.0, 1.0e4;
+
+    R << 0.9, 0.0,
+         0.0, 0.9;
+
+    A << 1.0, dt_mpc, 0.0, 0.0,
+         0.0, 1.0, 0.0, 0.0,
+         0.0, 0.0, 1.0, dt_mpc,
+         0.0, 0.0, 0.0, 1.0 - (dt_mpc * b / m);
+
+    B << 0.0, 0.0,
+         -(r * dt_mpc / I_r), r * dt_mpc / I_r,
+         0.0, 0.0,
+         dt_mpc / m, dt_mpc / m;
+
+    // A/B/Q/R/F 都设置完之后再构建
+    BuildPredictionMatrices();
+    BuildHessianMatrices();
+
+    // 如果之前已经初始化过 QP，参数改了要让它重新初始化
+    is_initialized = 0;
+}
 /**
  * @brief MPC_Controller 构造函数
  * 

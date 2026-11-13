@@ -18,20 +18,27 @@
 /* Define --------------------------------------------------------------------*/
 
 /* Enum ----------------------------------------------------------------------*/
-
+enum class KF_Mode
+{
+    Normal, // æ­£å¸¸
+    Slip,   // æ‰“æ»‘
+    Spin    // å°é™€èº
+};
 /* Variable && Struct --------------------------------------------------------*/
 
 /* Function ------------------------------------------------------------------*/
 
 typedef void(*UserFunction)();
 
+/**
+* @brief é€šç”¨å¡å°”æ›¼æ»¤æ³¢å™¨ç±»ï¼Œæ”¯æŒçº¿æ€§ç³»ç»ŸçŠ¶æ€ä¼°è®¡ï¼Œå¯é…ç½®çŠ¶æ€/è§‚æµ‹/æ§åˆ¶ç»´åº¦åŠç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°
+*/
 class KalmanFilter
 {
 private:
-    // ÏµÍ³Î¬¶È
-    int StateDim; // ×´Ì¬ÏòÁ¿Î¬¶È, Ò²¾ÍÊÇÔ¤²âÁ¿Î¬¶Èx
-    int MeasureDim; // ²âÁ¿ÏòÁ¿Î¬¶Èz
-    int ControlDim; // ¿ØÖÆÏòÁ¿Î¬¶Èu
+    int StateDim; 
+    int MeasureDim; 
+    int ControlDim; 
 
     UserFunction UserFunc1;
     UserFunction UserFunc2;
@@ -41,53 +48,46 @@ private:
 
 
 public:
-    // ÏµÍ³Ä£ĞÍ¾ØÕó
-    Eigen::MatrixXf F; // ×´Ì¬×ªÒÆ¾ØÕó ¿ÉÊÓÎªÀëÉ¢»¯ºóµÄA¾ØÕó
-    Eigen::MatrixXf B; // ¿ØÖÆÊäÈë¾ØÕó
-    Eigen::MatrixXf H; // ²âÁ¿Óë×´Ì¬¹ØÏµ¾ØÕó
-    Eigen::MatrixXf Q; // ¹ı³ÌÔëÉùĞ­·½²î¾ØÕó
-    Eigen::MatrixXf R; // ²âÁ¿ÔëÉùĞ­·½²î¾ØÕó
-    Eigen::MatrixXf P; // Îó²îÔëÉùĞ­·½²î¾ØÕó
-    Eigen::MatrixXf P_p; // ÏÈÑéÎó²îÔëÉùĞ­·½²î¾ØÕó
-    Eigen::MatrixXf K; // ¿¨¶ûÂüÔöÒæ¾ØÕó
-    Eigen::MatrixXf I; // µ¥Î»¾ØÕó StateDim * StateDim
+    Eigen::MatrixXf F; 
+    Eigen::MatrixXf B; 
+    Eigen::MatrixXf H; 
+    Eigen::MatrixXf Q; 
+    Eigen::MatrixXf R; 
+    Eigen::MatrixXf P; 
+    Eigen::MatrixXf P_p; 
+    Eigen::MatrixXf K; 
+    Eigen::MatrixXf I; 
 
-    // µ±Ç°×´Ì¬
-    Eigen::VectorXf x_hat_p; // ÏÈÑé¹À¼ÆÖµ
-    Eigen::VectorXf x_k_out; // ÏÈÑé¹À¼ÆÖµ
-    Eigen::VectorXf x_hat; // ºóÑé¹À¼ÆÖµ
-    Eigen::VectorXf z; // ²âÁ¿ÏòÁ¿
-    Eigen::VectorXf z_nl; // ·ÇÏßĞÔÏòÁ¿£¬¼´H(xhat_p)
-    Eigen::VectorXf z_err; // ÓÃÓÚ¿¨·½¼ìÑéµÄzÖµÎó²î
+    Eigen::VectorXf x_hat_p; 
+    Eigen::VectorXf x_k_out;
+    Eigen::VectorXf x_hat;
+    Eigen::VectorXf z; 
+    Eigen::VectorXf z_nl; 
+    Eigen::VectorXf z_err; 
 
-    // ÆäËû±äÁ¿
-    Eigen::VectorXf StateMinVariance; // ×îĞ¡Ğ­·½²î ·ÀÖ¹¹ı¶ÈÊÕÁ²
+    Eigen::VectorXf StateMinVariance; 
 
-    // ¹¹Ôìº¯Êı
+    /**
+    * @brief æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–å¡å°”æ›¼æ»¤æ³¢å™¨ç»´åº¦åŠç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°
+    * @param StateDim çŠ¶æ€å‘é‡ç»´åº¦
+    * @param MeasureDim æµ‹é‡å‘é‡ç»´åº¦
+    * @param ControlDim æ§åˆ¶å‘é‡ç»´åº¦
+    * @param UserFunc1 ç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°1ï¼Œåœ¨é¢„æµ‹é˜¶æ®µçŠ¶æ€æ›´æ–°åè°ƒç”¨
+    * @param UserFunc2 ç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°2ï¼Œåœ¨é¢„æµ‹é˜¶æ®µåæ–¹å·®æ›´æ–°åè°ƒç”¨
+    * @param UserFunc3 ç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°3ï¼Œåœ¨æ›´æ–°é˜¶æ®µå¼€å§‹æ—¶è°ƒç”¨
+    * @param UserFunc4 ç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°4ï¼Œåœ¨å¡å°”æ›¼å¢ç›Šè®¡ç®—åè°ƒç”¨
+    * @param UserFunc5 ç”¨æˆ·è‡ªå®šä¹‰å›è°ƒå‡½æ•°5ï¼Œåœ¨çŠ¶æ€ä¿®æ­£é‡è®¡ç®—åè°ƒç”¨
+    */
     KalmanFilter(int StateDim, int MeasureDim, int ControlDim, UserFunction UserFunc1, UserFunction UserFunc2,
                  UserFunction UserFunc3, UserFunction UserFunc4, UserFunction UserFunc5);
-    void Init(const Eigen::VectorXf& x0, const Eigen::MatrixXf& p0);
-    void SetModel(const Eigen::MatrixXf& F_, const Eigen::MatrixXf& H_, const Eigen::MatrixXf& Q_,
-                  const Eigen::MatrixXf& R_);
-    void SetControlB(const Eigen::MatrixXf& B_);
-
-    void Set_F(const Eigen::MatrixXf& F_);
-
-    void Set_H(const Eigen::MatrixXf& H_);
-    void Set_P(const Eigen::MatrixXf& P_);
-    void Set_x_hat_p(const Eigen::VectorXf& x_hat_p_);
-    void SetStateMinVariance(const Eigen::VectorXf& M_);
-    void Set_Z(const Eigen::VectorXf& z_);
-    void Set_Z_nl(const Eigen::VectorXf& z_nl_);
+    
+    void KF_Init();
+    void Set_Mode(KF_Mode mode);
+    void Set_Z(float v, float a);
     void Predict(const Eigen::VectorXf& u = Eigen::VectorXf());
     void Update();
-    Eigen::VectorXf get_p_output();
-    Eigen::VectorXf get_output();
-    Eigen::VectorXf get_xk_out();
-    Eigen::VectorXf get_P();
 
 private:
-    void H_K_R_Adjustment();
 };
 
 
